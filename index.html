@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>MoveAble Motion Lab</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --card: #1a1a24;
+    --border: #2a2a38;
+    --accent: #7c6fff;
+    --accent2: #4dffc3;
+    --warn: #ff6b6b;
+    --text: #f0f0f8;
+    --muted: #8888aa;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  /* ── SCREENS ── */
+  .screen {
+    display: none;
+    flex-direction: column;
+    min-height: 100dvh;
+    padding: 24px 20px;
+    animation: fadeIn .35s ease;
+  }
+  .screen.active { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+  /* ── HEADER ── */
+  .logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    color: var(--accent);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent2); }
+
+  /* ── WELCOME SCREEN ── */
+  #screen-welcome { justify-content: center; align-items: center; text-align: center; gap: 20px; }
+
+  .hero-ring {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7c6fff22, #4dffc322);
+    border: 1.5px solid var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 52px;
+    position: relative;
+  }
+  .hero-ring::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 1px solid #7c6fff33;
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{transform:scale(1);opacity:.6} 50%{transform:scale(1.08);opacity:1} }
+
+  .hero-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px; font-weight: 700;
+    line-height: 1.2;
+  }
+  .hero-title span { color: var(--accent2); }
+
+  .hero-sub { font-size: 15px; color: var(--muted); line-height: 1.6; max-width: 300px; }
+
+  .badge-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 4px; }
+  .badge {
+    font-size: 12px; padding: 5px 12px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    background: var(--surface);
+  }
+
+  .btn-primary {
+    width: 100%; max-width: 320px;
+    padding: 16px;
+    background: var(--accent);
+    color: #fff;
+    border: none; border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px; font-weight: 600;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    margin-top: 8px;
+  }
+  .btn-primary:active { transform: scale(.97); }
+  .btn-primary:hover { box-shadow: 0 0 24px #7c6fff55; }
+
+  /* ── EXERCISE SELECTION ── */
+  #screen-select { gap: 16px; }
+  .screen-title { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .screen-sub { font-size: 14px; color: var(--muted); margin-bottom: 8px; }
+
+  .exercise-grid { display: flex; flex-direction: column; gap: 12px; flex: 1; }
+
+  .ex-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    cursor: pointer;
+    transition: border-color .2s, transform .15s;
+    display: flex; align-items: center; gap: 16px;
+    position: relative; overflow: hidden;
+  }
+  .ex-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, transparent 60%, var(--ex-color, #7c6fff)18);
+    opacity: 0; transition: opacity .2s;
+  }
+  .ex-card:hover::before, .ex-card:active::before { opacity: 1; }
+  .ex-card:hover { border-color: var(--ex-color, var(--accent)); transform: translateY(-2px); }
+  .ex-card:active { transform: scale(.98); }
+
+  .ex-icon {
+    width: 56px; height: 56px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; flex-shrink: 0;
+    background: var(--ex-color, var(--accent))22;
+    border: 1px solid var(--ex-color, var(--accent))44;
+  }
+  .ex-info { flex: 1; }
+  .ex-name { font-weight: 600; font-size: 17px; margin-bottom: 4px; }
+  .ex-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .ex-level {
+    font-size: 11px; font-weight: 600;
+    padding: 3px 10px; border-radius: 100px;
+    background: var(--ex-color, var(--accent))22;
+    color: var(--ex-color, var(--accent));
+  }
+  .ex-arrow { color: var(--muted); font-size: 20px; flex-shrink: 0; }
+
+  /* ── INSTRUCTION SCREEN ── */
+  #screen-instruction { gap: 20px; }
+  .ex-header {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex; gap: 16px; align-items: center;
+  }
+  .ex-header .ex-icon-lg {
+    width: 64px; height: 64px;
+    border-radius: 16px;
+    font-size: 32px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent)22; border: 1px solid var(--accent)44;
+    flex-shrink: 0;
+  }
+
+  .steps-list { display: flex; flex-direction: column; gap: 10px; }
+  .step-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: var(--surface); border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .step-num {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .step-text { font-size: 14px; line-height: 1.6; color: var(--text); }
+
+  .rep-selector {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .rep-label { font-size: 14px; color: var(--muted); }
+  .rep-controls { display: flex; align-items: center; gap: 16px; }
+  .rep-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); font-size: 20px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background .15s;
+  }
+  .rep-btn:hover { background: var(--border); }
+  .rep-count { font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 700; min-width: 32px; text-align: center; }
+
+  /* ── CAMERA SCREEN ── */
+  #screen-camera { padding: 0; position: relative; background: #000; }
+  #video { width: 100%; height: 100dvh; object-fit: cover; transform: scaleX(-1); display: block; }
+  #canvas-overlay {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100dvh;
+    transform: scaleX(-1);
+    pointer-events: none;
+  }
+
+  .camera-ui {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    display: flex; flex-direction: column;
+    padding: 24px 20px;
+    background: linear-gradient(to bottom, rgba(0,0,0,.6) 0%, transparent 35%, transparent 60%, rgba(0,0,0,.8) 100%);
+  }
+
+  .camera-top { display: flex; justify-content: space-between; align-items: center; }
+  .camera-logo { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: .06em; }
+  .close-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(255,255,255,.15); border: none;
+    color: #fff; font-size: 18px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .camera-center { flex: 1; display: flex; align-items: center; justify-content: center; }
+
+  .feedback-bubble {
+    background: rgba(10,10,15,.85);
+    border: 2px solid var(--accent2);
+    border-radius: 20px;
+    padding: 10px 20px;
+    text-align: center;
+    transition: border-color .3s;
+    backdrop-filter: blur(8px);
+  }
+  .feedback-bubble.good { border-color: var(--accent2); }
+  .feedback-bubble.bad  { border-color: var(--warn); }
+  .feedback-bubble.idle { border-color: var(--border); }
+
+  .feedback-emoji { font-size: 26px; margin-bottom: 3px; }
+  .feedback-text { font-size: 16px; font-weight: 600; }
+  .feedback-hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  .camera-bottom { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+
+  .rep-counter-ring {
+    width: 90px; height: 90px;
+    position: relative; display: flex; align-items: center; justify-content: center;
+  }
+  .rep-counter-ring svg { position: absolute; top: 0; left: 0; transform: rotate(-90deg); }
+  .rep-counter-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px; font-weight: 700;
+    position: relative; z-index: 1;
+  }
+  .rep-counter-label { font-size: 12px; color: var(--muted); text-align: center; }
+
+  .ex-name-badge {
+    font-size: 13px; font-weight: 600;
+    background: rgba(124,111,255,.25);
+    border: 1px solid var(--accent)66;
+    padding: 6px 14px; border-radius: 100px;
+    color: var(--accent);
+  }
+
+  /* ── RESULTS SCREEN ── */
+  #screen-result { gap: 20px; justify-content: center; align-items: center; text-align: center; }
+  .result-ring {
+    width: 130px; height: 130px; border-radius: 50%;
+    background: var(--accent2)15;
+    border: 2px solid var(--accent2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 56px;
+    animation: popIn .5s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .result-title { font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 700; }
+  .result-title span { color: var(--accent2); }
+
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 320px; }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px;
+  }
+  .stat-val { font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; color: var(--accent); }
+  .stat-lbl { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .level-up-badge {
+    background: var(--accent2)20; border: 1px solid var(--accent2)44;
+    border-radius: 12px; padding: 14px 20px; max-width: 320px; width: 100%;
+    text-align: left;
+  }
+  .level-up-badge .lbl { font-size: 11px; color: var(--accent2); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; }
+  .level-up-badge .msg { font-size: 14px; color: var(--text); line-height: 1.5; }
+
+  .btn-secondary {
+    background: var(--surface); border: 1.5px solid var(--border);
+    color: var(--text); border-radius: var(--radius);
+    padding: 14px 32px; font-size: 15px; font-weight: 600;
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: border-color .2s;
+  }
+  .btn-secondary:hover { border-color: var(--accent); }
+
+  /* ── LOADING STATE ── */
+  .loading-bar {
+    height: 3px; background: var(--border); border-radius: 2px;
+    overflow: hidden; margin: 8px 0;
+  }
+  .loading-bar-inner {
+    height: 100%; width: 40%; background: var(--accent);
+    border-radius: 2px;
+    animation: loading 1.2s ease-in-out infinite;
+  }
+  @keyframes loading { 0%{transform:translateX(-100%)} 100%{transform:translateX(350%)} }
+
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--warn); display: inline-block;
+    animation: blink 1.2s ease-in-out infinite;
+  }
+  .status-dot.ready { background: var(--accent2); animation: none; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  /* ── ONBOARDING ── */
+  .onboard-title { font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 8px; }
+  .onboard-sub { font-size: 14px; color: var(--muted); text-align: center; margin-bottom: 32px; line-height: 1.6; }
+  .body-cards { display: flex; flex-direction: column; gap: 14px; flex: 1; }
+  .body-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    cursor: pointer;
+    transition: border-color .2s, transform .15s;
+    display: flex; align-items: center; gap: 20px;
+  }
+  .body-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .body-card:active { transform: scale(.98); }
+  .body-card-icon { font-size: 40px; width: 64px; text-align: center; flex-shrink: 0; }
+  .body-card-info { flex: 1; }
+  .body-card-name { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .body-card-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .body-card-arrow { font-size: 24px; color: var(--muted); }
+
+
+  /* ── NAME INPUT ── */
+  .name-input-wrap {
+    width: 100%; max-width: 320px;
+    position: relative;
+  }
+  .name-input {
+    width: 100%;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    font-size: 16px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    outline: none;
+    transition: border-color .2s;
+    text-align: center;
+  }
+  .name-input:focus { border-color: var(--accent); }
+  .name-input::placeholder { color: var(--muted); }
+
+</style>
+</head>
+<body>
+
+<!-- ══ SCREEN: WELCOME ══ -->
+<div id="screen-welcome" class="screen active">
+  <div class="logo"><div class="logo-dot"></div>MOVEABLE</div>
+  <div class="hero-ring">🤸</div>
+  <div>
+    <div class="hero-title">Motion Lab<br><span>for every body</span></div>
+  </div>
+  <div class="hero-sub">AI-powered movement companion that adapts to your abilities — right in your browser, no app needed.</div>
+  <div class="badge-row">
+    <span class="badge">🧠 AI pose tracking</span>
+    <span class="badge">♿ Adaptive</span>
+    <span class="badge">🏠 Home-friendly</span>
+  </div>
+  <div class="name-input-wrap">
+    <input class="name-input" id="user-name-input" type="text" placeholder="What's your name?" maxlength="30"
+      onkeydown="if(event.key==='Enter') startWithName()"/>
+  </div>
+  <button class="btn-primary" onclick="startWithName()">Let's move →</button>
+</div>
+
+
+<!-- ══ SCREEN: ONBOARDING ══ -->
+<div id="screen-onboard" class="screen">
+  <div class="logo"><div class="logo-dot"></div>MOVEABLE</div>
+  <div class="onboard-title" id="onboard-greeting">What can you move today?</div>
+  <div class="onboard-sub">Choose what feels comfortable right now.<br>We'll guide you from there.</div>
+  <div class="body-cards">
+
+    <div class="body-card" onclick="selectExercise('arm')" style="border-color:#7c6fff33">
+      <div class="body-card-icon">💪</div>
+      <div class="body-card-info">
+        <div class="body-card-name" style="color:#7c6fff">My arms</div>
+        <div class="body-card-desc">Shoulder raise — gentle lift to the side. Good for circulation and strength.</div>
+      </div>
+      <div class="body-card-arrow">›</div>
+    </div>
+
+    <div class="body-card" onclick="selectExercise('neck')" style="border-color:#4dffc333">
+      <div class="body-card-icon">🔄</div>
+      <div class="body-card-info">
+        <div class="body-card-name" style="color:#4dffc3">My neck</div>
+        <div class="body-card-desc">Gentle head tilt — left and right. Relieves tension, improves flexibility.</div>
+      </div>
+      <div class="body-card-arrow">›</div>
+    </div>
+
+    <div class="body-card" onclick="selectExercise('shoulder')" style="border-color:#ff9f6b33">
+      <div class="body-card-icon">🙆</div>
+      <div class="body-card-info">
+        <div class="body-card-name" style="color:#ff9f6b">My shoulders</div>
+        <div class="body-card-desc">Shoulder shrug — lift and release. Builds upper body awareness.</div>
+      </div>
+      <div class="body-card-arrow">›</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ SCREEN: SELECT EXERCISE ══ -->
+<div id="screen-select" class="screen">
+  <div class="logo"><div class="logo-dot"></div>MOVEABLE</div>
+  <div class="screen-title">Choose your exercise</div>
+  <div class="screen-sub" id="greeting-text">All movements are adapted to your range of motion.</div>
+  <div class="exercise-grid">
+
+    <div class="ex-card" style="--ex-color:#7c6fff" onclick="selectExercise('arm')">
+      <div class="ex-icon" style="--ex-color:#7c6fff">💪</div>
+      <div class="ex-info">
+        <div class="ex-name">Arm Raise</div>
+        <div class="ex-desc">Lift your arm to the side. Great for shoulder mobility and strength.</div>
+        <div style="margin-top:8px"><span class="ex-level" style="--ex-color:#7c6fff">Beginner</span></div>
+      </div>
+      <div class="ex-arrow">›</div>
+    </div>
+
+    <div class="ex-card" style="--ex-color:#4dffc3" onclick="selectExercise('neck')">
+      <div class="ex-icon" style="--ex-color:#4dffc3">🔄</div>
+      <div class="ex-info">
+        <div class="ex-name">Neck Roll</div>
+        <div class="ex-desc">Gentle head tilt left and right. Relieves tension, improves flexibility.</div>
+        <div style="margin-top:8px"><span class="ex-level" style="--ex-color:#4dffc3">Gentle</span></div>
+      </div>
+      <div class="ex-arrow">›</div>
+    </div>
+
+    <div class="ex-card" style="--ex-color:#ff9f6b" onclick="selectExercise('shoulder')">
+      <div class="ex-icon" style="--ex-color:#ff9f6b">🙆</div>
+      <div class="ex-info">
+        <div class="ex-name">Shoulder Shrug</div>
+        <div class="ex-desc">Raise and lower your shoulders. Builds upper body awareness.</div>
+        <div style="margin-top:8px"><span class="ex-level" style="--ex-color:#ff9f6b">Easy</span></div>
+      </div>
+      <div class="ex-arrow">›</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ SCREEN: INSTRUCTION ══ -->
+<div id="screen-instruction" class="screen">
+  <div class="logo"><div class="logo-dot"></div>MOVEABLE</div>
+  <div class="ex-header">
+    <div class="ex-icon-lg" id="instr-icon">💪</div>
+    <div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700" id="instr-name">Arm Raise</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px" id="instr-desc">Shoulder mobility exercise</div>
+    </div>
+  </div>
+
+  <div class="steps-list" id="instr-steps"></div>
+
+  <div class="rep-selector">
+    <div class="rep-label">Target reps</div>
+    <div class="rep-controls">
+      <button class="rep-btn" onclick="changeReps(-2)">−</button>
+      <div class="rep-count" id="rep-display">8</div>
+      <button class="rep-btn" onclick="changeReps(2)">+</button>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)">
+    <span class="status-dot" id="model-dot"></span>
+    <span id="model-status">Loading AI model…</span>
+    <div class="loading-bar" style="flex:1" id="loading-bar"><div class="loading-bar-inner"></div></div>
+  </div>
+
+  <button class="btn-primary" id="start-btn" onclick="startCamera()" disabled style="opacity:.5">
+    Starting camera…
+  </button>
+</div>
+
+<!-- ══ SCREEN: CAMERA ══ -->
+<div id="screen-camera" class="screen">
+  <video id="video" autoplay muted playsinline></video>
+  <canvas id="canvas-overlay"></canvas>
+
+  <!-- AI loading overlay -->
+  <div id="ai-loading-overlay" style="
+    position:absolute;inset:0;
+    background:rgba(10,10,15,.85);
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    gap:16px;z-index:10;
+    backdrop-filter:blur(4px);
+  ">
+    <div style="font-size:48px">🧠</div>
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:#f0f0f8">Loading AI…</div>
+    <div style="width:180px;height:4px;background:#2a2a38;border-radius:2px;overflow:hidden">
+      <div style="height:100%;width:40%;background:#7c6fff;border-radius:2px;animation:loading 1.2s ease-in-out infinite"></div>
+    </div>
+    <div style="font-size:13px;color:#8888aa;text-align:center;max-width:240px">Hold phone at arm's length so your upper body is visible</div>
+  </div>
+
+  <div class="camera-ui">
+    <div class="camera-top">
+      <div class="camera-logo">MOVEABLE</div>
+      <button class="close-btn" onclick="stopSession()">✕</button>
+    </div>
+    <div class="camera-center" style="align-items:flex-start;padding-top:12px;">
+      <div class="feedback-bubble idle" id="feedback-bubble">
+        <div class="feedback-emoji" id="feedback-emoji">🔍</div>
+        <div class="feedback-text" id="feedback-text">Finding your pose…</div>
+        <div class="feedback-hint" id="feedback-hint">Hold phone at arm's length, upper body visible</div>
+      </div>
+    </div>
+    <div class="camera-bottom">
+      <div class="ex-name-badge" id="camera-ex-name">Arm Raise</div>
+      <div class="rep-counter-ring">
+        <svg width="90" height="90" viewBox="0 0 90 90">
+          <circle cx="45" cy="45" r="38" fill="none" stroke="#2a2a38" stroke-width="6"/>
+          <circle id="progress-ring" cx="45" cy="45" r="38" fill="none"
+            stroke="#7c6fff" stroke-width="6" stroke-linecap="round"
+            stroke-dasharray="239" stroke-dashoffset="239" style="transition:stroke-dashoffset .4s ease"/>
+        </svg>
+        <div class="rep-counter-text" id="rep-counter">0</div>
+      </div>
+      <div class="rep-counter-label" id="rep-goal-label">of 8 reps</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN: RESULT ══ -->
+<div id="screen-result" class="screen">
+  <div class="logo" style="position:absolute;top:24px;left:20px"><div class="logo-dot"></div>MOVEABLE</div>
+  <div style="height:60px"></div>
+  <div class="result-ring" id="result-emoji-ring">🏆</div>
+  <div class="result-title">Well done,<br><span id="result-praise">champion!</span></div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-val" id="stat-reps">8</div>
+      <div class="stat-lbl">Reps completed</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="stat-points">240</div>
+      <div class="stat-lbl">Points earned</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="stat-accuracy">87%</div>
+      <div class="stat-lbl">Form accuracy</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="stat-streak">1</div>
+      <div class="stat-lbl">Day streak 🔥</div>
+    </div>
+  </div>
+  <div class="level-up-badge">
+    <div class="lbl">Next step</div>
+    <div class="msg" id="next-level-msg">Great work! Try 10 reps next time, or add a second exercise to your session.</div>
+  </div>
+  <button class="btn-primary" onclick="showScreen('screen-select')" style="max-width:320px;width:100%">New Exercise</button>
+  <button class="btn-secondary" onclick="showScreen('screen-welcome')">Home</button>
+</div>
+
+<!-- ══ SCRIPTS ══ -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3.1675466124/drawing_utils.js" crossorigin="anonymous"></script>
+
+<script>
+// ── STATE ──
+const exercises = {
+  arm: {
+    name: 'Arm Raise',
+    icon: '💪',
+    desc: 'Shoulder mobility · lift to 90°',
+    color: '#7c6fff',
+    steps: [
+      'Stand or sit with your side to the camera',
+      'Start with your arm relaxed at your side',
+      'Slowly raise your arm out to the side up to shoulder height',
+      'Lower it back down — that\'s one rep!'
+    ],
+    detect: detectArmRaise,
+    hint: 'Raise your arm to shoulder level',
+    good: 'Perfect! Nice and steady 💜',
+    bad:  'A little more — you\'ve got this!',
+  },
+  neck: {
+    name: 'Neck Roll',
+    icon: '🔄',
+    desc: 'Gentle neck flexibility',
+    color: '#4dffc3',
+    steps: [
+      'Face the camera directly',
+      'Keep your shoulders relaxed and still',
+      'Slowly tilt your head to one side, then the other',
+      'One full tilt to each side = one rep!'
+    ],
+    detect: detectNeckTilt,
+    hint: 'Tilt your head slowly to one side',
+    good: 'Beautiful range of motion! 💚',
+    bad:  'Gently tilt a little further…',
+  },
+  shoulder: {
+    name: 'Shoulder Shrug',
+    icon: '🙆',
+    desc: 'Upper body awareness',
+    color: '#ff9f6b',
+    steps: [
+      'Face the camera, shoulders visible',
+      'Start with shoulders in a natural, relaxed position',
+      'Lift both shoulders up toward your ears',
+      'Lower them back down — that\'s one rep!'
+    ],
+    detect: detectShoulderShrug,
+    hint: 'Lift your shoulders up toward your ears',
+    good: 'Great shrug! Full range 🧡',
+    bad:  'Lift a bit higher if you can!',
+  }
+};
+
+let currentEx = null;
+let userName = '';
+let targetReps = 8;
+let repCount = 0;
+let poseDetector = null;
+let mpCamera = null;
+let repState = 'down'; // 'down' | 'up'
+let lastRepTime = 0;
+let sessionPoints = 0;
+let accuracySum = 0;
+let accuracyCount = 0;
+let modelReady = false;
+
+// ── NAVIGATION ──
+
+function startWithName() {
+  var input = document.getElementById('user-name-input');
+  userName = input ? input.value.trim() : '';
+  if (!userName) userName = 'Champion';
+  // update greeting on select screen
+  var greet = document.getElementById('greeting-text');
+  if (greet) greet.textContent = 'Hi, ' + userName + '! Choose your exercise.';
+  var onboardGreet = document.getElementById('onboard-greeting');
+  if (onboardGreet && userName && userName !== 'Champion') {
+    onboardGreet.textContent = 'Hi ' + userName + ', what can you move today?';
+  }
+  showScreen('screen-onboard');
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function selectExercise(key) {
+  currentEx = key;
+  const ex = exercises[key];
+  document.getElementById('instr-icon').textContent = ex.icon;
+  document.getElementById('instr-name').textContent = ex.name;
+  document.getElementById('instr-desc').textContent = ex.desc;
+  document.getElementById('camera-ex-name').textContent = ex.name;
+
+  const stepsEl = document.getElementById('instr-steps');
+  stepsEl.innerHTML = ex.steps.map((s, i) => `
+    <div class="step-item">
+      <div class="step-num">${i+1}</div>
+      <div class="step-text">${s}</div>
+    </div>`).join('');
+
+  repCount = 0;
+  repState = 'down';
+  updateRepDisplay();
+  showScreen('screen-instruction');
+  loadModel();
+}
+
+function changeReps(delta) {
+  targetReps = Math.max(2, Math.min(20, targetReps + delta));
+  document.getElementById('rep-display').textContent = targetReps;
+  document.getElementById('rep-goal-label').textContent = `of ${targetReps} reps`;
+}
+
+// ── MEDIAPIPE SETUP ──
+function loadModel() {
+  if (poseDetector) { onModelReady(); return; }
+  const pose = new Pose({
+    locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/${f}`
+  });
+  pose.setOptions({
+    modelComplexity: 0,
+    smoothLandmarks: true,
+    enableSegmentation: false,
+    minDetectionConfidence: 0.4,
+    minTrackingConfidence: 0.4
+  });
+  pose.onResults(onPoseResults);
+  poseDetector = pose;
+
+  // warm up
+  const dummy = document.createElement('canvas');
+  dummy.width = 64; dummy.height = 64;
+  pose.send({ image: dummy }).then(onModelReady).catch(onModelReady);
+}
+
+function onModelReady() {
+  modelReady = true;
+  document.getElementById('model-dot').classList.add('ready');
+  document.getElementById('model-status').textContent = 'AI ready ✓';
+  document.getElementById('loading-bar').style.display = 'none';
+  const btn = document.getElementById('start-btn');
+  btn.disabled = false;
+  btn.style.opacity = '1';
+  btn.textContent = 'Start with Camera →';
+  // hide camera loading overlay if visible
+  const ov = document.getElementById('ai-loading-overlay');
+  if (ov) ov.style.display = 'none';
+}
+
+// ── CAMERA ──
+async function startCamera() {
+  repCount = 0; repState = 'down'; sessionPoints = 0;
+  accuracySum = 0; accuracyCount = 0; firstResult = false;
+  updateRepDisplay();
+  showScreen('screen-camera');
+
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('canvas-overlay');
+
+  // show loading overlay until model fires first result
+  const overlay = document.getElementById('ai-loading-overlay');
+  if (overlay) overlay.style.display = 'flex';
+
+  // Use front-facing camera directly
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+      audio: false
+    });
+    video.srcObject = stream;
+    await video.play();
+    canvas.width  = video.videoWidth  || 640;
+    canvas.height = video.videoHeight || 480;
+
+    // run pose detection loop
+    async function poseLoop() {
+      if (!video.srcObject) return;
+      if (poseDetector && video.readyState >= 2) {
+        await poseDetector.send({ image: video });
+      }
+      requestAnimationFrame(poseLoop);
+    }
+    poseLoop();
+
+  } catch(e) {
+    if (overlay) overlay.style.display = 'none';
+    setFeedback('idle','📷','Camera blocked','Please allow camera access in your browser settings');
+  }
+}
+
+function stopSession() {
+  if (mpCamera) { mpCamera.stop(); mpCamera = null; }
+  const video = document.getElementById('video');
+  if (video.srcObject) { video.srcObject.getTracks().forEach(t => t.stop()); video.srcObject = null; }
+  showScreen('screen-onboard');
+}
+
+// hide loading overlay on first successful pose result
+let firstResult = false;
+
+// ── AUDIO SYSTEM ──
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playBeep(freq, duration, vol) {
+  freq = freq || 880; duration = duration || 0.12; vol = vol || 0.3;
+  try {
+    const osc  = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.frequency.value = freq;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.start(audioCtx.currentTime);
+    osc.stop(audioCtx.currentTime + duration);
+  } catch(e) {}
+}
+
+function playVictory() {
+  [523, 659, 784, 1047].forEach(function(f, i) {
+    setTimeout(function(){ playBeep(f, 0.2, 0.35); }, i * 130);
+  });
+}
+
+function speakCount(n) {
+  // ascending tones: each rep = higher pitch, works on all browsers
+  var baseFreq = 330;
+  var freq = baseFreq + (n - 1) * 40;
+  if (freq > 880) freq = 880;
+  // double beep: short low + higher confirmation
+  playBeep(freq * 0.75, 0.07, 0.2);
+  setTimeout(function(){ playBeep(freq, 0.13, 0.3); }, 80);
+}
+
+function unlockAudio() {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  document.removeEventListener('touchstart', unlockAudio);
+  document.removeEventListener('click', unlockAudio);
+}
+document.addEventListener('touchstart', unlockAudio);
+document.addEventListener('click', unlockAudio);
+
+
+// ── POSE RESULTS ──
+function onPoseResults(results) {
+  // hide loading overlay on first callback
+  if (!firstResult) {
+    firstResult = true;
+    const ov = document.getElementById('ai-loading-overlay');
+    if (ov) ov.style.display = 'none';
+  }
+
+  const canvas = document.getElementById('canvas-overlay');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (!results.poseLandmarks) {
+    setFeedback('idle','🔍','Finding your pose…','Step back so your upper body is visible');
+    return;
+  }
+
+  // Draw skeleton
+  drawConnectors(ctx, results.poseLandmarks, POSE_CONNECTIONS, { color:'#7c6fff55', lineWidth: 2 });
+  drawLandmarks(ctx, results.poseLandmarks, { color:'#7c6fff', lineWidth: 1, radius: 4 });
+
+  const lm = results.poseLandmarks;
+  const ex = exercises[currentEx];
+  const { good, repDone, accuracy } = ex.detect(lm);
+
+  accuracySum += accuracy;
+  accuracyCount++;
+
+  if (repDone && repState === 'down') {
+    repState = 'up';
+  }
+  if (!repDone && repState === 'up') {
+    repState = 'down';
+    var now = Date.now();
+    if (now - lastRepTime > 800) {
+      lastRepTime = now;
+      repCount++;
+      sessionPoints += Math.round(10 * accuracy);
+      playBeep(660, 0.1, 0.25);
+      speakCount(repCount);
+      updateRepDisplay();
+      if (repCount >= targetReps) { finishSession(); return; }
+    }
+  }
+
+  if (good) {
+    setFeedback('good','✅', ex.good, repCount > 0 ? `${repCount} / ${targetReps} reps` : 'Keep going!');
+  } else {
+    setFeedback('bad','💬', ex.bad, ex.hint);
+  }
+}
+
+// ── DETECTION FUNCTIONS ──
+function angle3(a, b, c) {
+  const ab = { x: a.x - b.x, y: a.y - b.y };
+  const cb = { x: c.x - b.x, y: c.y - b.y };
+  const dot = ab.x * cb.x + ab.y * cb.y;
+  const cross = Math.abs(ab.x * cb.y - ab.y * cb.x);
+  return Math.atan2(cross, dot) * 180 / Math.PI;
+}
+
+function detectArmRaise(lm) {
+  // Right side: shoulder(12), elbow(14), hip(24)
+  // Check if elbow is above shoulder level
+  const rShoulder = lm[12];
+  const rElbow    = lm[14];
+  const rHip      = lm[24];
+  const ang = angle3(rHip, rShoulder, rElbow);
+  const repDone = ang > 82;   // arm raised ~90°
+  const accuracy = Math.min(1, ang / 90);
+  return { good: repDone, repDone, accuracy };
+}
+
+function detectNeckTilt(lm) {
+  // Nose(0) vs midpoint of shoulders(11,12)
+  const nose = lm[0];
+  const lShoulder = lm[11];
+  const rShoulder = lm[12];
+  const midX = (lShoulder.x + rShoulder.x) / 2;
+  const tiltPx = Math.abs(nose.x - midX);
+  const shoulderWidth = Math.abs(lShoulder.x - rShoulder.x);
+  const ratio = shoulderWidth > 0 ? tiltPx / shoulderWidth : 0;
+  const repDone = ratio > 0.22;
+  const accuracy = Math.min(1, ratio / 0.22);
+  return { good: repDone, repDone, accuracy };
+}
+
+function detectShoulderShrug(lm) {
+  // Track shoulder Y relative to nose(0) - works even when ears not visible
+  const nose = lm[0];
+  const lShoulder = lm[11];
+  const rShoulder = lm[12];
+  if (!nose || !lShoulder || !rShoulder) return { good: false, repDone: false, accuracy: 0 };
+
+  // Distance from nose to shoulders - when shrugging, shoulders move UP (closer to nose)
+  const lDist = lShoulder.y - nose.y;
+  const rDist = rShoulder.y - nose.y;
+  const avgDist = (lDist + rDist) / 2;
+
+  // Normal: shoulders ~0.25-0.35 below nose
+  // Shrugging: shoulders ~0.15-0.20 below nose
+  const repDone = avgDist < 0.22;
+  const accuracy = Math.min(1, Math.max(0, 1 - (avgDist - 0.15) / 0.15));
+  return { good: repDone, repDone, accuracy };
+}
+
+// ── UI HELPERS ──
+function setFeedback(state, emoji, text, hint) {
+  const bubble = document.getElementById('feedback-bubble');
+  bubble.className = 'feedback-bubble ' + state;
+  document.getElementById('feedback-emoji').textContent = emoji;
+  document.getElementById('feedback-text').textContent = text;
+  document.getElementById('feedback-hint').textContent = hint;
+}
+
+function updateRepDisplay() {
+  document.getElementById('rep-counter').textContent = repCount;
+  document.getElementById('rep-goal-label').textContent = `of ${targetReps} reps`;
+  const circ = 239;
+  const offset = circ - (repCount / targetReps) * circ;
+  document.getElementById('progress-ring').style.strokeDashoffset = offset;
+  const ex = exercises[currentEx];
+  if (ex) document.getElementById('progress-ring').style.stroke = ex.color;
+}
+
+function finishSession() {
+  playVictory();
+  if (mpCamera) { mpCamera.stop(); mpCamera = null; }
+  const video = document.getElementById('video');
+  if (video.srcObject) { video.srcObject.getTracks().forEach(t => t.stop()); video.srcObject = null; }
+
+  const accuracy = accuracyCount > 0 ? Math.round((accuracySum / accuracyCount) * 100) : 85;
+  const ex = exercises[currentEx];
+  const praises = ['champion!', 'amazing!', 'superstar!', 'unstoppable!'];
+  const praise = praises[Math.floor(Math.random() * praises.length)];
+
+  document.getElementById('stat-reps').textContent = repCount;
+  document.getElementById('stat-points').textContent = sessionPoints || repCount * 30;
+  document.getElementById('stat-accuracy').textContent = accuracy + '%';
+  document.getElementById('result-praise').textContent = (userName && userName !== 'Champion') ? userName + '!' : praise;
+  document.getElementById('result-emoji-ring').textContent = accuracy >= 80 ? '🏆' : accuracy >= 60 ? '⭐' : '💪';
+
+  const nextReps = targetReps + 2;
+  document.getElementById('next-level-msg').textContent =
+    `You crushed ${repCount} reps of ${ex.name}! Next session, try ${nextReps} reps — or add another exercise to your routine.`;
+
+  showScreen('screen-result');
+}
+</script>
+</body>
+</html>
