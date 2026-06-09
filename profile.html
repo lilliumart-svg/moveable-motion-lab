@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Профиль — MoveAble</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/profile.css" />
+</head>
+<body>
+<div class="app">
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item" data-page="home">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+      <span data-i18n="nav_home">Главная</span>
+    </a>
+    <a href="exercises.html" class="nav-item" data-page="exercises">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+      <span data-i18n="nav_exercises">Упражнения</span>
+    </a>
+    <a href="session.html" class="nav-item nav-item--cta" data-page="session">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5,3 19,12 5,21"/></svg>
+    </a>
+    <a href="progress.html" class="nav-item" data-page="progress">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span data-i18n="nav_progress">Прогресс</span>
+    </a>
+    <a href="profile.html" class="nav-item active" data-page="profile">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span data-i18n="nav_profile">Профиль</span>
+    </a>
+  </nav>
+
+  <main class="page-content">
+
+    <!-- Header -->
+    <header class="profile-header">
+      <h1 data-i18n="profile_title">Мой профиль</h1>
+      <button class="btn-icon" id="edit-btn" onclick="toggleEdit()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </button>
+    </header>
+
+    <!-- Avatar + Name -->
+    <section class="profile-hero">
+      <div class="avatar-ring" id="avatar-ring">
+        <div class="avatar-inner" id="avatar-display">
+          <span id="avatar-initials">?</span>
+        </div>
+        <!-- SVG progress ring -->
+        <svg class="ring-svg" viewBox="0 0 120 120">
+          <circle class="ring-bg"       cx="60" cy="60" r="54" />
+          <circle class="ring-progress" cx="60" cy="60" r="54" id="ring-progress" />
+        </svg>
+      </div>
+
+      <div class="profile-name-block">
+        <h2 id="profile-name-display">—</h2>
+        <p class="profile-goal-display" id="profile-goal-display"></p>
+      </div>
+
+      <!-- Voice input hint -->
+      <div class="voice-hint">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        <span id="voice-hint-text">Голосовой ввод имени доступен</span>
+      </div>
+    </section>
+
+    <!-- Edit Form (hidden by default) -->
+    <section class="section edit-form hidden" id="edit-form">
+      <div class="form-group">
+        <label data-i18n="profile_name">Имя</label>
+        <div class="input-with-voice">
+          <input type="text" id="edit-name" class="input-field" maxlength="40" />
+          <button class="voice-btn" id="voice-btn" onclick="startVoiceInput()" title="Голосовой ввод">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n="age">Возраст</label>
+          <input type="number" id="edit-age" class="input-field" min="1" max="120" />
+        </div>
+        <div class="form-group">
+          <label data-i18n="gender">Пол</label>
+          <select id="edit-gender" class="input-field">
+            <option value="" data-i18n="not_specified">Не указан</option>
+            <option value="m" data-i18n="male">Мужской</option>
+            <option value="f" data-i18n="female">Женский</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n="height">Рост, см</label>
+          <input type="number" id="edit-height" class="input-field" min="50" max="250" />
+        </div>
+        <div class="form-group">
+          <label data-i18n="weight">Вес, кг</label>
+          <input type="number" id="edit-weight" class="input-field" min="10" max="300" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label data-i18n="your_goal">Цель</label>
+        <select id="edit-goal" class="input-field">
+          <option value="mobility"  data-i18n="goal_mobility">Мобильность</option>
+          <option value="strength"  data-i18n="goal_strength">Сила мышц</option>
+          <option value="pain"      data-i18n="goal_pain">Снижение боли</option>
+          <option value="balance"   data-i18n="goal_balance">Баланс</option>
+          <option value="recovery"  data-i18n="goal_recovery">Реабилитация</option>
+          <option value="general"   data-i18n="goal_general">Общее здоровье</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="saveProfile()" data-i18n="profile_save">Сохранить</button>
+    </section>
+
+    <!-- Stats -->
+    <section class="section">
+      <div class="profile-stats">
+        <div class="pstat">
+          <span class="pstat__val" id="pstat-sessions">0</span>
+          <span class="pstat__label" data-i18n="total_sessions">тренировок</span>
+        </div>
+        <div class="pstat pstat--accent">
+          <span class="pstat__val" id="pstat-streak">0</span>
+          <span class="pstat__label" data-i18n="days_streak">дней подряд</span>
+        </div>
+        <div class="pstat">
+          <span class="pstat__val" id="pstat-minutes">0</span>
+          <span class="pstat__label" data-i18n="total_minutes">минут</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Achievements -->
+    <section class="section">
+      <h2 data-i18n="profile_achievements">Достижения</h2>
+      <div class="achievements-grid" id="achievements-grid"></div>
+    </section>
+
+    <!-- Session History -->
+    <section class="section section--last">
+      <h2 data-i18n="profile_history">История тренировок</h2>
+      <div id="session-history"></div>
+    </section>
+
+  </main>
+</div>
+
+<script src="js/i18n.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/profile.js"></script>
+<script>
+  initProfile();
+</script>
+</body>
+</html>

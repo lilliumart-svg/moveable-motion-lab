@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MoveAble Motion Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+
+  <!-- ONBOARDING (shown on first visit) -->
+  <div id="onboarding" class="onboarding hidden">
+    <div class="onboarding__inner">
+      <div class="onboarding__logo">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <circle cx="24" cy="24" r="20" stroke="#4ECDC4" stroke-width="2" opacity="0.3"/>
+          <circle cx="24" cy="24" r="12" stroke="#4ECDC4" stroke-width="2"/>
+          <path d="M24 16 L24 24 L30 28" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <span>MoveAble</span>
+      </div>
+
+      <div class="onboarding__steps">
+
+        <!-- Step 1: Language -->
+        <div class="onboard-step active" data-step="1">
+          <h2>Выберите язык<br/><span>Choose language</span></h2>
+          <div class="lang-grid">
+            <button class="lang-btn active" data-lang="ru" onclick="selectLang('ru')">
+              <span class="lang-flag">🇷🇺</span>
+              <span>Русский</span>
+            </button>
+            <button class="lang-btn" data-lang="en" onclick="selectLang('en')">
+              <span class="lang-flag">🇬🇧</span>
+              <span>English</span>
+            </button>
+            <button class="lang-btn soon" data-lang="kz" disabled>
+              <span class="lang-flag">🇰🇿</span>
+              <span>Қазақша</span>
+              <span class="badge">soon</span>
+            </button>
+          </div>
+          <button class="btn-primary" onclick="nextStep(2)" data-i18n="continue">Продолжить</button>
+        </div>
+
+        <!-- Step 2: Name -->
+        <div class="onboard-step" data-step="2">
+          <h2 data-i18n="whats_your_name">Как вас зовут?</h2>
+          <p data-i18n="name_hint">Мы будем обращаться к вам по имени</p>
+          <input type="text" id="onboard-name" class="input-field" placeholder="Ваше имя" data-i18n-placeholder="your_name" maxlength="40" />
+          <button class="btn-primary" onclick="nextStep(3)" data-i18n="continue">Продолжить</button>
+        </div>
+
+        <!-- Step 3: Goal -->
+        <div class="onboard-step" data-step="3">
+          <h2 data-i18n="your_goal">Ваша цель</h2>
+          <p data-i18n="goal_hint">Это поможет подобрать упражнения</p>
+          <div class="goal-grid">
+            <button class="goal-btn" data-goal="mobility" onclick="selectGoal(this)">
+              <span class="goal-icon">🦽</span>
+              <span data-i18n="goal_mobility">Мобильность</span>
+            </button>
+            <button class="goal-btn" data-goal="strength" onclick="selectGoal(this)">
+              <span class="goal-icon">💪</span>
+              <span data-i18n="goal_strength">Сила мышц</span>
+            </button>
+            <button class="goal-btn" data-goal="pain" onclick="selectGoal(this)">
+              <span class="goal-icon">🩹</span>
+              <span data-i18n="goal_pain">Снижение боли</span>
+            </button>
+            <button class="goal-btn" data-goal="balance" onclick="selectGoal(this)">
+              <span class="goal-icon">⚖️</span>
+              <span data-i18n="goal_balance">Баланс</span>
+            </button>
+            <button class="goal-btn" data-goal="recovery" onclick="selectGoal(this)">
+              <span class="goal-icon">🏥</span>
+              <span data-i18n="goal_recovery">Реабилитация</span>
+            </button>
+            <button class="goal-btn" data-goal="general" onclick="selectGoal(this)">
+              <span class="goal-icon">✨</span>
+              <span data-i18n="goal_general">Общее здоровье</span>
+            </button>
+          </div>
+          <button class="btn-primary" onclick="nextStep(4)" data-i18n="continue">Продолжить</button>
+        </div>
+
+        <!-- Step 4: Physical info -->
+        <div class="onboard-step" data-step="4">
+          <h2 data-i18n="about_you">О вас</h2>
+          <p data-i18n="optional_hint">Необязательно, но помогает</p>
+          <div class="form-row">
+            <div class="form-group">
+              <label data-i18n="age">Возраст</label>
+              <input type="number" id="onboard-age" class="input-field" placeholder="35" min="1" max="120" />
+            </div>
+            <div class="form-group">
+              <label data-i18n="gender">Пол</label>
+              <select id="onboard-gender" class="input-field">
+                <option value="" data-i18n="not_specified">Не указан</option>
+                <option value="m" data-i18n="male">Мужской</option>
+                <option value="f" data-i18n="female">Женский</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label data-i18n="height">Рост, см</label>
+              <input type="number" id="onboard-height" class="input-field" placeholder="170" min="50" max="250" />
+            </div>
+            <div class="form-group">
+              <label data-i18n="weight">Вес, кг</label>
+              <input type="number" id="onboard-weight" class="input-field" placeholder="70" min="10" max="300" />
+            </div>
+          </div>
+          <button class="btn-primary" onclick="finishOnboarding()" data-i18n="start">Начать!</button>
+        </div>
+
+      </div>
+
+      <!-- Progress dots -->
+      <div class="onboard-dots">
+        <span class="dot active" data-dot="1"></span>
+        <span class="dot" data-dot="2"></span>
+        <span class="dot" data-dot="3"></span>
+        <span class="dot" data-dot="4"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app" class="app hidden">
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <a href="index.html" class="nav-item active" data-page="home">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9,22 9,12 15,12 15,22"/>
+        </svg>
+        <span data-i18n="nav_home">Главная</span>
+      </a>
+      <a href="exercises.html" class="nav-item" data-page="exercises">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+          <line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
+        </svg>
+        <span data-i18n="nav_exercises">Упражнения</span>
+      </a>
+      <a href="session.html" class="nav-item nav-item--cta" data-page="session">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="5,3 19,12 5,21"/>
+        </svg>
+      </a>
+      <a href="progress.html" class="nav-item" data-page="progress">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6" y1="20" x2="6" y2="14"/>
+        </svg>
+        <span data-i18n="nav_progress">Прогресс</span>
+      </a>
+      <a href="profile.html" class="nav-item" data-page="profile">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span data-i18n="nav_profile">Профиль</span>
+      </a>
+    </nav>
+
+    <!-- HOME PAGE CONTENT -->
+    <main class="page-content" id="page-home">
+
+      <!-- Header -->
+      <header class="home-header">
+        <div class="greeting">
+          <p class="greeting__sub" data-i18n="good_morning">Доброе утро,</p>
+          <h1 class="greeting__name" id="greeting-name">—</h1>
+        </div>
+        <div class="header-streak">
+          <span class="streak-fire">🔥</span>
+          <span class="streak-count" id="header-streak">0</span>
+        </div>
+      </header>
+
+      <!-- Today's Plan -->
+      <section class="section">
+        <div class="section-header">
+          <h2 data-i18n="today_plan">План на сегодня</h2>
+          <span class="section-tag" id="today-date"></span>
+        </div>
+        <div class="today-card" id="today-card">
+          <div class="today-card__icon">💪</div>
+          <div class="today-card__info">
+            <h3 id="today-title" data-i18n="today_arms">Руки и плечи</h3>
+            <p id="today-desc" data-i18n="today_desc">5 упражнений · 15 минут</p>
+          </div>
+          <button class="btn-start" onclick="window.location='session.html'" data-i18n="start_btn">Начать</button>
+        </div>
+      </section>
+
+      <!-- Quick Stats -->
+      <section class="section">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-card__value" id="stat-streak">0</span>
+            <span class="stat-card__label" data-i18n="days_streak">дней подряд</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card__value" id="stat-sessions">0</span>
+            <span class="stat-card__label" data-i18n="total_sessions">тренировок</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card__value" id="stat-minutes">0</span>
+            <span class="stat-card__label" data-i18n="total_minutes">минут</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Weekly Schedule -->
+      <section class="section">
+        <h2 data-i18n="week_schedule">Расписание недели</h2>
+        <div class="week-strip" id="week-strip"></div>
+      </section>
+
+      <!-- Quick Start Categories -->
+      <section class="section">
+        <h2 data-i18n="categories">Категории</h2>
+        <div class="category-grid">
+          <a href="exercises.html?cat=arms" class="category-card">
+            <span class="category-card__icon">💪</span>
+            <span data-i18n="cat_arms">Руки</span>
+          </a>
+          <a href="exercises.html?cat=legs" class="category-card">
+            <span class="category-card__icon">🦵</span>
+            <span data-i18n="cat_legs">Ноги</span>
+          </a>
+          <a href="exercises.html?cat=neck" class="category-card">
+            <span class="category-card__icon">🧠</span>
+            <span data-i18n="cat_neck">Шея</span>
+          </a>
+          <a href="exercises.html?cat=back" class="category-card">
+            <span class="category-card__icon">🔙</span>
+            <span data-i18n="cat_back">Спина</span>
+          </a>
+          <a href="exercises.html?cat=core" class="category-card">
+            <span class="category-card__icon">⚡</span>
+            <span data-i18n="cat_core">Корпус</span>
+          </a>
+          <a href="exercises.html?cat=full" class="category-card">
+            <span class="category-card__icon">✨</span>
+            <span data-i18n="cat_full">Разминка</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- Motivation -->
+      <section class="section section--last">
+        <div class="motivation-card" id="motivation-card">
+          <p class="motivation-card__quote" id="motivation-quote"></p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    initApp();
+  </script>
+</body>
+</html>

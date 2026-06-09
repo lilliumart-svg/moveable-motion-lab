@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Тренировка — MoveAble</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/main.css"/>
+  <style>
+    .session-wrap { min-height: 100vh; display: flex; flex-direction: column; padding: 40px 20px 40px; max-width: 480px; margin: 0 auto; }
+    .session-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+    .session-back { width: 44px; height: 44px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
+    .session-back:hover { color: var(--accent); border-color: var(--accent); }
+    .session-progress-bar { flex: 1; height: 4px; background: var(--bg-elevated); border-radius: 2px; margin: 0 16px; overflow: hidden; }
+    .session-progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.5s ease; }
+    .session-counter { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+
+    .exercise-display { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 20px; }
+    .ex-big-icon { font-size: 5rem; animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    .ex-big-name { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; }
+    .ex-big-desc { font-size: 0.95rem; color: var(--text-muted); max-width: 300px; line-height: 1.6; }
+
+    .rep-counter { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .rep-number { font-family: var(--font-display); font-size: 4rem; font-weight: 700; color: var(--accent); line-height: 1; }
+    .rep-label { font-size: 0.9rem; color: var(--text-muted); }
+
+    .timer-ring { position: relative; width: 140px; height: 140px; }
+    .timer-svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+    .timer-bg { fill: none; stroke: var(--bg-elevated); stroke-width: 6; }
+    .timer-fill { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; stroke-dasharray: 408; stroke-dashoffset: 408; transition: stroke-dashoffset 1s linear; }
+    .timer-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 2rem; font-weight: 700; color: var(--text); }
+
+    .session-actions { display: flex; gap: 12px; margin-top: 32px; }
+    .btn-skip { flex: 1; padding: 16px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-muted); font-family: var(--font-display); font-size: 1rem; font-weight: 600; transition: var(--transition); }
+    .btn-skip:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-next { flex: 2; padding: 16px; background: var(--accent); color: var(--bg); border-radius: var(--radius-md); font-family: var(--font-display); font-size: 1rem; font-weight: 700; transition: var(--transition); }
+    .btn-next:hover { background: #5ED8CF; }
+
+    .done-screen { display: none; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; gap: 20px; }
+    .done-icon { font-size: 5rem; }
+    .done-title { font-family: var(--font-display); font-size: 2rem; font-weight: 700; }
+    .done-msg { color: var(--text-muted); font-size: 0.95rem; }
+    .done-stats { display: flex; gap: 24px; margin: 8px 0; }
+    .done-stat { text-align: center; }
+    .done-stat-val { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; color: var(--accent); }
+    .done-stat-lbl { font-size: 0.8rem; color: var(--text-muted); }
+    .done-new-ach { background: rgba(255,217,61,0.1); border: 1px solid var(--warning); border-radius: var(--radius-md); padding: 12px 20px; color: var(--warning); font-size: 0.9rem; font-weight: 600; }
+  </style>
+</head>
+<body>
+<div class="session-wrap">
+  <div class="session-top">
+    <a href="index.html" class="session-back">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15,18 9,12 15,6"/></svg>
+    </a>
+    <div class="session-progress-bar"><div class="session-progress-fill" id="session-fill" style="width:0%"></div></div>
+    <span class="session-counter" id="session-counter">1 / 5</span>
+  </div>
+
+  <div class="exercise-display" id="exercise-display">
+    <div class="ex-big-icon" id="ex-icon">💪</div>
+    <div class="ex-big-name" id="ex-name">—</div>
+    <div class="ex-big-desc" id="ex-desc">—</div>
+
+    <div class="rep-counter" id="rep-display">
+      <div class="rep-number" id="rep-num">12</div>
+      <div class="rep-label" id="rep-lbl">повторений</div>
+    </div>
+
+    <div class="timer-ring hidden" id="timer-display">
+      <svg class="timer-svg" viewBox="0 0 140 140">
+        <circle class="timer-bg"   cx="70" cy="70" r="65"/>
+        <circle class="timer-fill" cx="70" cy="70" r="65" id="timer-fill"/>
+      </svg>
+      <div class="timer-text" id="timer-text">30</div>
+    </div>
+  </div>
+
+  <div class="session-actions">
+    <button class="btn-skip" onclick="skipExercise()" id="skip-btn" data-i18n="session_skip">Пропустить</button>
+    <button class="btn-next" onclick="nextExercise()" id="next-btn" data-i18n="session_next">Следующее</button>
+  </div>
+
+  <div class="done-screen" id="done-screen">
+    <div class="done-icon">🎉</div>
+    <div class="done-title" data-i18n="session_done_title">Отлично!</div>
+    <div class="done-msg" data-i18n="session_done_msg">Тренировка завершена</div>
+    <div class="done-stats">
+      <div class="done-stat"><div class="done-stat-val" id="done-count">0</div><div class="done-stat-lbl" data-i18n="total_sessions">упр.</div></div>
+      <div class="done-stat"><div class="done-stat-val" id="done-min">0</div><div class="done-stat-lbl" data-i18n="total_minutes">мин</div></div>
+    </div>
+    <div class="done-new-ach hidden" id="done-ach"></div>
+    <button class="btn-primary" onclick="window.location='index.html'" data-i18n="session_done_btn">На главную</button>
+  </div>
+</div>
+
+<script src="js/i18n.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/exercises.js"></script>
+<script>
+  const lang = getLang() || detectLang();
+  setLang(lang);
+  applyTranslations();
+
+  const cat = localStorage.getItem('mv_session_cat') || 'arms';
+  const plan = getSessionPlan(cat, lang);
+  let idx = 0;
+  let timerInterval = null;
+  let timerRemaining = 0;
+  const sessionStart = Date.now();
+
+  function loadExercise() {
+    if (idx >= plan.length) { finishSession(); return; }
+    const ex = plan[idx];
+    document.getElementById('ex-icon').textContent = ex.icon;
+    document.getElementById('ex-name').textContent = ex.displayName;
+    document.getElementById('ex-desc').textContent = ex.displayDesc;
+    document.getElementById('session-counter').textContent = `${idx+1} / ${plan.length}`;
+    document.getElementById('session-fill').style.width = `${(idx/plan.length)*100}%`;
+
+    clearInterval(timerInterval);
+
+    if (ex.durationSec) {
+      document.getElementById('rep-display').classList.add('hidden');
+      document.getElementById('timer-display').classList.remove('hidden');
+      startTimer(ex.durationSec);
+    } else {
+      document.getElementById('rep-display').classList.remove('hidden');
+      document.getElementById('timer-display').classList.add('hidden');
+      document.getElementById('rep-num').textContent = ex.reps || 10;
+      document.getElementById('rep-lbl').textContent = lang === 'en' ? 'reps' : 'повторений';
+    }
+
+    const btn = document.getElementById('next-btn');
+    btn.textContent = idx === plan.length - 1
+      ? (lang === 'en' ? 'Complete' : 'Завершить')
+      : (lang === 'en' ? 'Next' : 'Следующее');
+  }
+
+  function startTimer(seconds) {
+    const circumference = 408;
+    timerRemaining = seconds;
+    document.getElementById('timer-text').textContent = timerRemaining;
+    document.getElementById('timer-fill').style.strokeDashoffset = circumference;
+
+    timerInterval = setInterval(() => {
+      timerRemaining--;
+      const progress = timerRemaining / seconds;
+      document.getElementById('timer-fill').style.strokeDashoffset = circumference - (1-progress)*circumference;
+      document.getElementById('timer-text').textContent = timerRemaining;
+      if (timerRemaining <= 0) { clearInterval(timerInterval); }
+    }, 1000);
+  }
+
+  function nextExercise() {
+    clearInterval(timerInterval);
+    idx++;
+    if (idx >= plan.length) { finishSession(); }
+    else loadExercise();
+  }
+
+  function skipExercise() { nextExercise(); }
+
+  function finishSession() {
+    clearInterval(timerInterval);
+    const durationMin = Math.round((Date.now() - sessionStart) / 60000) || 1;
+    const catTitle = plan[0]?.displayName || cat;
+
+    const session = saveSession({ category: cat, title: catTitle, durationMin, exercises: plan.map(e=>e.id) });
+    const { new: newAch } = checkAchievements();
+
+    document.getElementById('exercise-display').style.display = 'none';
+    document.querySelectorAll('.session-actions')[0].style.display = 'none';
+    document.getElementById('session-top')?.style && (document.getElementById('session-top').style.display='none');
+
+    const doneScreen = document.getElementById('done-screen');
+    doneScreen.style.display = 'flex';
+    document.getElementById('done-count').textContent = plan.length;
+    document.getElementById('done-min').textContent = durationMin;
+    document.getElementById('session-fill').style.width = '100%';
+
+    if (newAch.length) {
+      const achEl = document.getElementById('done-ach');
+      const achNames = { first_step:'👣 Первый шаг!', week_warrior:'🏆 Воин недели!', mover:'🚀 В движении!', dedicated:'💎 Преданность!' };
+      achEl.textContent = achNames[newAch[0]] || '🏅 Новое достижение!';
+      achEl.classList.remove('hidden');
+    }
+  }
+
+  loadExercise();
+</script>
+</body>
+</html>
