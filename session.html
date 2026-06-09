@@ -9,188 +9,242 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="css/main.css"/>
   <style>
-    .session-wrap { min-height: 100vh; display: flex; flex-direction: column; padding: 40px 20px 40px; max-width: 480px; margin: 0 auto; }
-    .session-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
-    .session-back { width: 44px; height: 44px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
-    .session-back:hover { color: var(--accent); border-color: var(--accent); }
-    .session-progress-bar { flex: 1; height: 4px; background: var(--bg-elevated); border-radius: 2px; margin: 0 16px; overflow: hidden; }
-    .session-progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.5s ease; }
-    .session-counter { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
-
-    .exercise-display { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 20px; }
-    .ex-big-icon { font-size: 5rem; animation: float 3s ease-in-out infinite; }
-    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-    .ex-big-name { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; }
-    .ex-big-desc { font-size: 0.95rem; color: var(--text-muted); max-width: 300px; line-height: 1.6; }
-
-    .rep-counter { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    .rep-number { font-family: var(--font-display); font-size: 4rem; font-weight: 700; color: var(--accent); line-height: 1; }
-    .rep-label { font-size: 0.9rem; color: var(--text-muted); }
-
-    .timer-ring { position: relative; width: 140px; height: 140px; }
-    .timer-svg { transform: rotate(-90deg); width: 100%; height: 100%; }
-    .timer-bg { fill: none; stroke: var(--bg-elevated); stroke-width: 6; }
-    .timer-fill { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; stroke-dasharray: 408; stroke-dashoffset: 408; transition: stroke-dashoffset 1s linear; }
-    .timer-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 2rem; font-weight: 700; color: var(--text); }
-
-    .session-actions { display: flex; gap: 12px; margin-top: 32px; }
-    .btn-skip { flex: 1; padding: 16px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-muted); font-family: var(--font-display); font-size: 1rem; font-weight: 600; transition: var(--transition); }
-    .btn-skip:hover { border-color: var(--accent); color: var(--accent); }
-    .btn-next { flex: 2; padding: 16px; background: var(--accent); color: var(--bg); border-radius: var(--radius-md); font-family: var(--font-display); font-size: 1rem; font-weight: 700; transition: var(--transition); }
-    .btn-next:hover { background: #5ED8CF; }
-
-    .done-screen { display: none; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; gap: 20px; }
-    .done-icon { font-size: 5rem; }
-    .done-title { font-family: var(--font-display); font-size: 2rem; font-weight: 700; }
-    .done-msg { color: var(--text-muted); font-size: 0.95rem; }
-    .done-stats { display: flex; gap: 24px; margin: 8px 0; }
-    .done-stat { text-align: center; }
-    .done-stat-val { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; color: var(--accent); }
-    .done-stat-lbl { font-size: 0.8rem; color: var(--text-muted); }
-    .done-new-ach { background: rgba(255,217,61,0.1); border: 1px solid var(--warning); border-radius: var(--radius-md); padding: 12px 20px; color: var(--warning); font-size: 0.9rem; font-weight: 600; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#0A0F1E;color:#F7F7F7;font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
+    .session-top{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;gap:12px;padding:16px 20px;background:linear-gradient(to bottom,rgba(10,15,30,.95),transparent)}
+    .session-back{width:40px;height:40px;flex-shrink:0;background:rgba(26,37,64,.8);border:1px solid rgba(255,255,255,.08);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#8892A4;text-decoration:none;transition:all .2s}
+    .session-back:hover{color:#4ECDC4;border-color:#4ECDC4}
+    .progress-bar-wrap{flex:1;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+    .progress-bar-fill{height:100%;background:#4ECDC4;border-radius:2px;transition:width .5s ease;width:0%}
+    .progress-counter{font-size:.8rem;color:#8892A4;font-weight:600;white-space:nowrap}
+    .camera-zone{position:relative;width:100%;height:280px;background:#060A14;overflow:hidden}
+    #camera-feed{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+    .camera-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 50%,#0A0F1E 100%);pointer-events:none}
+    #pose-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+    .cam-status{position:absolute;top:60px;right:12px;display:flex;align-items:center;gap:6px;background:rgba(10,15,30,.85);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:6px 12px;font-size:.75rem;font-weight:600}
+    .cam-dot{width:8px;height:8px;border-radius:50%;background:#FF6B6B}
+    .cam-dot.active{background:#6BCB77;animation:blink 1.5s infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+    .cv-feedback{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(78,205,196,.15);border:1px solid #4ECDC4;border-radius:20px;padding:6px 18px;font-size:.82rem;font-weight:600;color:#4ECDC4;white-space:nowrap;opacity:0;transition:opacity .4s}
+    .cv-feedback.show{opacity:1}
+    .cam-placeholder{width:100%;height:100%;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#4A5568}
+    .cam-placeholder svg{width:44px;height:44px;stroke:#4A5568}
+    .cam-placeholder p{font-size:.82rem}
+    .svg-hint{position:fixed;bottom:96px;left:14px;z-index:40;width:106px;height:106px;background:rgba(17,24,39,.95);border:1px solid rgba(78,205,196,.3);border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+    .svg-hint svg{width:62px;height:62px}
+    .svg-hint__label{font-size:.6rem;color:#8892A4;text-align:center;line-height:1.3}
+    .exercise-panel{padding:18px 20px 0}
+    .ex-header{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+    .ex-emoji{font-size:2.2rem}
+    .ex-title{font-family:'Space Grotesk',sans-serif;font-size:1.25rem;font-weight:700;line-height:1.2}
+    .ex-subtitle{font-size:.8rem;color:#8892A4;margin-top:3px}
+    .metric-row{display:flex;gap:12px;margin-bottom:18px}
+    .metric-box{flex:1;background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px;text-align:center}
+    .metric-box.accent{border-color:#4ECDC4;background:rgba(78,205,196,.08)}
+    .metric-val{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:700;color:#4ECDC4;line-height:1}
+    .metric-lbl{font-size:.72rem;color:#8892A4;margin-top:4px}
+    .steps-list{margin-bottom:20px}
+    .step-row{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+    .step-row:last-child{border-bottom:none}
+    .step-n{width:22px;height:22px;flex-shrink:0;border-radius:50%;background:rgba(78,205,196,.12);border:1px solid #4ECDC4;font-size:.7rem;font-weight:700;color:#4ECDC4;display:flex;align-items:center;justify-content:center}
+    .step-txt{font-size:.86rem;color:#F7F7F7;line-height:1.5}
+    .action-row{display:flex;gap:12px;padding:16px 20px 36px;position:sticky;bottom:0;background:linear-gradient(to top,#0A0F1E 70%,transparent);padding-top:20px}
+    .btn-skip{flex:1;padding:15px;background:#1A2540;border:1px solid rgba(255,255,255,.08);border-radius:14px;color:#8892A4;font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:600;cursor:pointer;transition:all .2s}
+    .btn-skip:hover{border-color:#4ECDC4;color:#4ECDC4}
+    .btn-next{flex:2;padding:15px;background:#4ECDC4;color:#0A0F1E;border-radius:14px;border:none;font-family:'Space Grotesk',sans-serif;font-size:.96rem;font-weight:700;cursor:pointer;transition:all .2s}
+    .btn-next:hover{background:#5ED8CF;transform:translateY(-1px)}
+    .done-screen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;gap:20px;padding:40px 24px}
+    .done-icon{font-size:5rem}
+    .done-title{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:700}
+    .done-msg{color:#8892A4;font-size:.95rem}
+    .done-stats{display:flex;gap:24px}
+    .done-stat-val{font-family:'Space Grotesk',sans-serif;font-size:1.8rem;font-weight:700;color:#4ECDC4}
+    .done-stat-lbl{font-size:.78rem;color:#8892A4}
+    .done-ach{background:rgba(255,217,61,.1);border:1px solid #FFD93D;border-radius:14px;padding:12px 24px;color:#FFD93D;font-size:.9rem;font-weight:600;display:none}
+    .btn-home{width:100%;max-width:320px;padding:16px;background:#4ECDC4;color:#0A0F1E;border-radius:14px;border:none;font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all .2s}
+    .btn-home:hover{background:#5ED8CF}
   </style>
 </head>
 <body>
-<div class="session-wrap">
-  <div class="session-top">
-    <a href="index.html" class="session-back">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15,18 9,12 15,6"/></svg>
-    </a>
-    <div class="session-progress-bar"><div class="session-progress-fill" id="session-fill" style="width:0%"></div></div>
-    <span class="session-counter" id="session-counter">1 / 5</span>
+
+<div class="session-top" id="session-top">
+  <a href="index.html" class="session-back">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15,18 9,12 15,6"/></svg>
+  </a>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill"></div></div>
+  <span class="progress-counter" id="prog-counter">1 / 5</span>
+</div>
+
+<div class="camera-zone" id="camera-zone">
+  <video id="camera-feed" autoplay muted playsinline></video>
+  <canvas id="pose-canvas"></canvas>
+  <div class="camera-overlay"></div>
+  <div class="cam-status">
+    <div class="cam-dot" id="cam-dot"></div>
+    <span id="cam-label">Камера</span>
   </div>
+  <div class="cv-feedback" id="cv-feedback">Отличная техника!</div>
+  <div class="cam-placeholder" id="cam-placeholder">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13" r="4" stroke-width="2"/></svg>
+    <p id="cam-ph-text">Разрешите доступ к камере</p>
+  </div>
+</div>
 
-  <div class="exercise-display" id="exercise-display">
-    <div class="ex-big-icon" id="ex-icon">💪</div>
-    <div class="ex-big-name" id="ex-name">—</div>
-    <div class="ex-big-desc" id="ex-desc">—</div>
+<div class="svg-hint" id="svg-hint">
+  <svg id="hint-svg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"></svg>
+  <span class="svg-hint__label" id="hint-label">Как делать</span>
+</div>
 
-    <div class="rep-counter" id="rep-display">
-      <div class="rep-number" id="rep-num">12</div>
-      <div class="rep-label" id="rep-lbl">повторений</div>
+<div class="exercise-panel" id="exercise-panel">
+  <div class="ex-header">
+    <span class="ex-emoji" id="ex-emoji">💪</span>
+    <div>
+      <div class="ex-title" id="ex-title">—</div>
+      <div class="ex-subtitle" id="ex-subtitle">—</div>
     </div>
-
-    <div class="timer-ring hidden" id="timer-display">
-      <svg class="timer-svg" viewBox="0 0 140 140">
-        <circle class="timer-bg"   cx="70" cy="70" r="65"/>
-        <circle class="timer-fill" cx="70" cy="70" r="65" id="timer-fill"/>
-      </svg>
-      <div class="timer-text" id="timer-text">30</div>
+  </div>
+  <div class="metric-row">
+    <div class="metric-box accent">
+      <div class="metric-val" id="metric-val">12</div>
+      <div class="metric-lbl" id="metric-lbl">повторений</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-val" id="sets-val">3</div>
+      <div class="metric-lbl" id="sets-lbl">подходов</div>
     </div>
   </div>
+  <div class="steps-list" id="steps-list"></div>
+</div>
 
-  <div class="session-actions">
-    <button class="btn-skip" onclick="skipExercise()" id="skip-btn" data-i18n="session_skip">Пропустить</button>
-    <button class="btn-next" onclick="nextExercise()" id="next-btn" data-i18n="session_next">Следующее</button>
-  </div>
+<div class="action-row">
+  <button class="btn-skip" onclick="skipEx()">Пропустить</button>
+  <button class="btn-next" id="btn-next" onclick="nextEx()">Следующее →</button>
+</div>
 
-  <div class="done-screen" id="done-screen">
-    <div class="done-icon">🎉</div>
-    <div class="done-title" data-i18n="session_done_title">Отлично!</div>
-    <div class="done-msg" data-i18n="session_done_msg">Тренировка завершена</div>
-    <div class="done-stats">
-      <div class="done-stat"><div class="done-stat-val" id="done-count">0</div><div class="done-stat-lbl" data-i18n="total_sessions">упр.</div></div>
-      <div class="done-stat"><div class="done-stat-val" id="done-min">0</div><div class="done-stat-lbl" data-i18n="total_minutes">мин</div></div>
-    </div>
-    <div class="done-new-ach hidden" id="done-ach"></div>
-    <button class="btn-primary" onclick="window.location='index.html'" data-i18n="session_done_btn">На главную</button>
+<div class="done-screen" id="done-screen">
+  <div class="done-icon">🎉</div>
+  <div class="done-title">Отлично!</div>
+  <div class="done-msg">Тренировка завершена</div>
+  <div class="done-stats">
+    <div class="done-stat"><div class="done-stat-val" id="d-count">0</div><div class="done-stat-lbl">упражнений</div></div>
+    <div class="done-stat"><div class="done-stat-val" id="d-min">0</div><div class="done-stat-lbl">минут</div></div>
   </div>
+  <div class="done-ach" id="done-ach"></div>
+  <button class="btn-home" onclick="window.location='index.html'">На главную</button>
 </div>
 
 <script src="js/i18n.js"></script>
 <script src="js/storage.js"></script>
 <script src="js/exercises.js"></script>
 <script>
-  const lang = getLang() || detectLang();
-  setLang(lang);
-  applyTranslations();
+const lang = getLang() || detectLang();
+setLang(lang);
+const cat = localStorage.getItem('mv_session_cat') || 'arms';
+const plan = getSessionPlan(cat, lang);
+let idx = 0;
+const sessionStart = Date.now();
 
-  const cat = localStorage.getItem('mv_session_cat') || 'arms';
-  const plan = getSessionPlan(cat, lang);
-  let idx = 0;
-  let timerInterval = null;
-  let timerRemaining = 0;
-  const sessionStart = Date.now();
+const SVG_HINTS = {
+  arms:`<g stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round" fill="none"><circle cx="40" cy="13" r="7"/><line x1="40" y1="20" x2="40" y2="46"/><line x1="40" y1="30" x2="24" y2="40"/><line x1="40" y1="46" x2="30" y2="64"/><line x1="40" y1="46" x2="50" y2="64"/><line x1="40" y1="30" x2="56" y2="40"><animateTransform attributeName="transform" type="rotate" values="0 40 30;-35 40 30;0 40 30" dur="1.5s" repeatCount="indefinite"/></line></g>`,
+  legs:`<g stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round" fill="none"><circle cx="40" cy="13" r="7"/><line x1="40" y1="20" x2="40" y2="46"/><line x1="40" y1="30" x2="26" y2="40"/><line x1="40" y1="30" x2="54" y2="40"/><line x1="40" y1="46" x2="32" y2="60"/><line x1="40" y1="46" x2="48" y2="60"/><line x1="32" y1="60" x2="32" y2="75"><animateTransform attributeName="transform" type="rotate" values="0 32 60;35 32 60;0 32 60" dur="1.6s" repeatCount="indefinite"/></line></g>`,
+  neck:`<g stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round" fill="none"><circle cx="40" cy="13" r="7"><animateTransform attributeName="transform" type="rotate" values="0 40 13;18 40 13;-18 40 13;0 40 13" dur="2s" repeatCount="indefinite"/></circle><line x1="40" y1="20" x2="40" y2="46"/><line x1="40" y1="30" x2="26" y2="40"/><line x1="40" y1="30" x2="54" y2="40"/><line x1="40" y1="46" x2="30" y2="64"/><line x1="40" y1="46" x2="50" y2="64"/></g>`,
+  back:`<g stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round" fill="none"><circle cx="40" cy="13" r="7"/><path d="M40 20 Q36 33 40 46"><animate attributeName="d" values="M40 20 Q36 33 40 46;M40 20 Q44 33 40 46;M40 20 Q36 33 40 46" dur="2s" repeatCount="indefinite"/></path><line x1="40" y1="30" x2="26" y2="40"/><line x1="40" y1="30" x2="54" y2="40"/><line x1="40" y1="46" x2="30" y2="64"/><line x1="40" y1="46" x2="50" y2="64"/></g>`,
+  core:`<g stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round" fill="none"><circle cx="40" cy="13" r="7"/><line x1="40" y1="20" x2="40" y2="46"/><line x1="40" y1="30" x2="26" y2="40"/><line x1="40" y1="30" x2="54" y2="40"/><line x1="40" y1="46" x2="30" y2="64"/><line x1="40" y1="46" x2="50" y2="64"/><ellipse cx="40" cy="35" rx="10" ry="6" opacity="0.4"><animate attributeName="rx" values="10;15;10" dur="1.5s" repeatCount="indefinite"/></ellipse></g>`,
+  full:`<g stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round" fill="none"><circle cx="40" cy="13" r="7"/><line x1="40" y1="20" x2="40" y2="46"/><line x1="40" y1="30" x2="26" y2="40"><animateTransform attributeName="transform" type="rotate" values="0 40 30;-22 40 30;0 40 30" dur="1s" repeatCount="indefinite"/></line><line x1="40" y1="30" x2="54" y2="40"><animateTransform attributeName="transform" type="rotate" values="0 40 30;22 40 30;0 40 30" dur="1s" repeatCount="indefinite"/></line><line x1="40" y1="46" x2="30" y2="64"/><line x1="40" y1="46" x2="50" y2="64"/></g>`,
+};
 
-  function loadExercise() {
-    if (idx >= plan.length) { finishSession(); return; }
-    const ex = plan[idx];
-    document.getElementById('ex-icon').textContent = ex.icon;
-    document.getElementById('ex-name').textContent = ex.displayName;
-    document.getElementById('ex-desc').textContent = ex.displayDesc;
-    document.getElementById('session-counter').textContent = `${idx+1} / ${plan.length}`;
-    document.getElementById('session-fill').style.width = `${(idx/plan.length)*100}%`;
-
-    clearInterval(timerInterval);
-
-    if (ex.durationSec) {
-      document.getElementById('rep-display').classList.add('hidden');
-      document.getElementById('timer-display').classList.remove('hidden');
-      startTimer(ex.durationSec);
-    } else {
-      document.getElementById('rep-display').classList.remove('hidden');
-      document.getElementById('timer-display').classList.add('hidden');
-      document.getElementById('rep-num').textContent = ex.reps || 10;
-      document.getElementById('rep-lbl').textContent = lang === 'en' ? 'reps' : 'повторений';
-    }
-
-    const btn = document.getElementById('next-btn');
-    btn.textContent = idx === plan.length - 1
-      ? (lang === 'en' ? 'Complete' : 'Завершить')
-      : (lang === 'en' ? 'Next' : 'Следующее');
+async function startCamera() {
+  const video = document.getElementById('camera-feed');
+  const dot   = document.getElementById('cam-dot');
+  const label = document.getElementById('cam-label');
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode:'user' } });
+    video.srcObject = stream;
+    dot.classList.add('active');
+    label.textContent = lang==='en' ? 'Camera on' : 'Камера вкл';
+    video.addEventListener('loadeddata', () => startPoseSim());
+  } catch(e) {
+    video.style.display = 'none';
+    document.getElementById('pose-canvas').style.display = 'none';
+    const ph = document.getElementById('cam-placeholder');
+    ph.style.display = 'flex';
+    label.textContent = lang==='en' ? 'No camera' : 'Нет камеры';
   }
+}
 
-  function startTimer(seconds) {
-    const circumference = 408;
-    timerRemaining = seconds;
-    document.getElementById('timer-text').textContent = timerRemaining;
-    document.getElementById('timer-fill').style.strokeDashoffset = circumference;
+function startPoseSim() {
+  const msgs = lang==='en'
+    ? ['Great form! 👍','Keep going!','Perfect range!','Slow it down','Excellent! 🔥']
+    : ['Отличная техника! 👍','Продолжай!','Хорошая амплитуда!','Чуть медленнее','Превосходно! 🔥'];
+  const fb = document.getElementById('cv-feedback');
+  let fi = 0;
+  setInterval(() => {
+    fb.textContent = msgs[fi % msgs.length]; fi++;
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 2500);
+  }, 5000);
+  drawSkeleton();
+}
 
-    timerInterval = setInterval(() => {
-      timerRemaining--;
-      const progress = timerRemaining / seconds;
-      document.getElementById('timer-fill').style.strokeDashoffset = circumference - (1-progress)*circumference;
-      document.getElementById('timer-text').textContent = timerRemaining;
-      if (timerRemaining <= 0) { clearInterval(timerInterval); }
-    }, 1000);
+function drawSkeleton() {
+  const canvas = document.getElementById('pose-canvas');
+  const video  = document.getElementById('camera-feed');
+  const ctx    = canvas.getContext('2d');
+  function resize() { canvas.width = video.offsetWidth || 360; canvas.height = video.offsetHeight || 280; }
+  resize(); window.addEventListener('resize', resize);
+  let kp = [{x:.50,y:.12},{x:.44,y:.22},{x:.56,y:.22},{x:.36,y:.36},{x:.64,y:.36},{x:.32,y:.50},{x:.68,y:.50},{x:.45,y:.55},{x:.55,y:.55},{x:.43,y:.73},{x:.57,y:.73},{x:.42,y:.90},{x:.58,y:.90}];
+  const CONN = [[1,2],[1,3],[3,5],[2,4],[4,6],[1,7],[2,8],[7,8],[7,9],[9,11],[8,10],[10,12]];
+  function jitter(v,a){return v+(Math.random()-.5)*a}
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const w=canvas.width, h=canvas.height;
+    kp = kp.map(p=>({x:jitter(p.x,.003),y:jitter(p.y,.003)}));
+    ctx.strokeStyle='rgba(78,205,196,0.75)'; ctx.lineWidth=2.5;
+    CONN.forEach(([a,b])=>{ctx.beginPath();ctx.moveTo(kp[a].x*w,kp[a].y*h);ctx.lineTo(kp[b].x*w,kp[b].y*h);ctx.stroke()});
+    kp.forEach((p,i)=>{ctx.beginPath();ctx.arc(p.x*w,p.y*h,i===0?6:4,0,Math.PI*2);ctx.fillStyle=i===0?'#FF6B6B':'#4ECDC4';ctx.fill()});
+    requestAnimationFrame(draw);
   }
+  draw();
+}
 
-  function nextExercise() {
-    clearInterval(timerInterval);
-    idx++;
-    if (idx >= plan.length) { finishSession(); }
-    else loadExercise();
-  }
+function loadExercise() {
+  if(idx>=plan.length){finishSession();return;}
+  const ex = plan[idx];
+  document.getElementById('ex-emoji').textContent   = ex.icon;
+  document.getElementById('ex-title').textContent   = ex.displayName;
+  document.getElementById('ex-subtitle').textContent= ex.displayDesc;
+  document.getElementById('metric-val').textContent = ex.durationSec || ex.reps || 10;
+  document.getElementById('metric-lbl').textContent = ex.durationSec ? (lang==='en'?'seconds':'секунд') : (lang==='en'?'reps':'повторений');
+  document.getElementById('sets-val').textContent   = ex.sets || 3;
+  document.getElementById('sets-lbl').textContent   = lang==='en'?'sets':'подходов';
+  document.getElementById('steps-list').innerHTML   = (ex.steps||[]).map((s,i)=>`<div class="step-row"><span class="step-n">${i+1}</span><span class="step-txt">${s}</span></div>`).join('');
+  document.getElementById('prog-fill').style.width  = `${(idx/plan.length)*100}%`;
+  document.getElementById('prog-counter').textContent=`${idx+1} / ${plan.length}`;
+  document.getElementById('hint-svg').innerHTML     = SVG_HINTS[ex.category]||SVG_HINTS.arms;
+  document.getElementById('hint-label').textContent = lang==='en'?'How to do':'Как делать';
+  document.getElementById('btn-next').textContent   = idx===plan.length-1?(lang==='en'?'Complete ✓':'Завершить ✓'):(lang==='en'?'Next →':'Следующее →');
+}
 
-  function skipExercise() { nextExercise(); }
+function nextEx(){idx++;if(idx>=plan.length)finishSession();else loadExercise();}
+function skipEx(){nextEx();}
 
-  function finishSession() {
-    clearInterval(timerInterval);
-    const durationMin = Math.round((Date.now() - sessionStart) / 60000) || 1;
-    const catTitle = plan[0]?.displayName || cat;
+function finishSession(){
+  const dMin=Math.max(1,Math.round((Date.now()-sessionStart)/60000));
+  saveSession({category:cat,title:plan[0]?.displayName||cat,durationMin:dMin,exercises:plan.map(e=>e.id)});
+  const {new:na}=checkAchievements();
+  const v=document.getElementById('camera-feed');
+  if(v.srcObject)v.srcObject.getTracks().forEach(t=>t.stop());
+  ['session-top','camera-zone','svg-hint','exercise-panel'].forEach(id=>document.getElementById(id).style.display='none');
+  document.querySelector('.action-row').style.display='none';
+  const done=document.getElementById('done-screen');
+  done.style.display='flex';
+  document.getElementById('d-count').textContent=plan.length;
+  document.getElementById('d-min').textContent=dMin;
+  if(na.length){const names={first_step:'👣 Первый шаг!',week_warrior:'🏆 Воин недели!',mover:'🚀 В движении!',dedicated:'💎 Преданность!'};const el=document.getElementById('done-ach');el.textContent=names[na[0]]||'🏅 Новое достижение!';el.style.display='block';}
+}
 
-    const session = saveSession({ category: cat, title: catTitle, durationMin, exercises: plan.map(e=>e.id) });
-    const { new: newAch } = checkAchievements();
-
-    document.getElementById('exercise-display').style.display = 'none';
-    document.querySelectorAll('.session-actions')[0].style.display = 'none';
-    document.getElementById('session-top')?.style && (document.getElementById('session-top').style.display='none');
-
-    const doneScreen = document.getElementById('done-screen');
-    doneScreen.style.display = 'flex';
-    document.getElementById('done-count').textContent = plan.length;
-    document.getElementById('done-min').textContent = durationMin;
-    document.getElementById('session-fill').style.width = '100%';
-
-    if (newAch.length) {
-      const achEl = document.getElementById('done-ach');
-      const achNames = { first_step:'👣 Первый шаг!', week_warrior:'🏆 Воин недели!', mover:'🚀 В движении!', dedicated:'💎 Преданность!' };
-      achEl.textContent = achNames[newAch[0]] || '🏅 Новое достижение!';
-      achEl.classList.remove('hidden');
-    }
-  }
-
-  loadExercise();
+startCamera();
+loadExercise();
 </script>
 </body>
 </html>
