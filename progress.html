@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Прогресс — MoveAble</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/main.css"/>
+  <style>
+    .page-header{padding:52px 20px 16px}
+    .page-header h1{font-family:'Space Grotesk',sans-serif;font-size:1.6rem;font-weight:700}
+    .period-tabs{display:flex;gap:8px;padding:0 20px 20px}
+    .period-tab{padding:8px 18px;background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:20px;font-size:.85rem;color:#8892A4;cursor:pointer;transition:all .2s}
+    .period-tab.active{background:#4ECDC4;color:#0A0F1E;border-color:#4ECDC4;font-weight:600}
+
+    /* Big streak card */
+    .streak-hero{margin:0 20px 20px;padding:24px;background:linear-gradient(135deg,#111827,#1A2540);border:1px solid rgba(78,205,196,.25);border-radius:24px;display:flex;align-items:center;gap:20px}
+    .streak-ring{position:relative;width:96px;height:96px;flex-shrink:0}
+    .streak-ring svg{transform:rotate(-90deg);width:100%;height:100%}
+    .streak-ring-bg{fill:none;stroke:#1A2540;stroke-width:6}
+    .streak-ring-fill{fill:none;stroke:#4ECDC4;stroke-width:6;stroke-linecap:round;stroke-dasharray:264;stroke-dashoffset:264;transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)}
+    .streak-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .streak-num{font-family:'Space Grotesk',sans-serif;font-size:1.6rem;font-weight:700;color:#4ECDC4;line-height:1}
+    .streak-fire{font-size:.9rem}
+    .streak-info h3{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:4px}
+    .streak-info p{font-size:.82rem;color:#8892A4;line-height:1.5}
+
+    /* Stats row */
+    .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 20px 20px}
+    .stat-tile{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;text-align:center}
+    .stat-tile-val{font-family:'Space Grotesk',sans-serif;font-size:1.7rem;font-weight:700;color:#4ECDC4}
+    .stat-tile-lbl{font-size:.72rem;color:#8892A4;margin-top:3px}
+
+    /* Bar chart */
+    .chart-wrap{margin:0 20px 24px}
+    .chart-wrap h2{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:600;margin-bottom:14px}
+    .bar-chart{display:flex;align-items:flex-end;gap:6px;height:100px}
+    .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+    .bar{width:100%;background:rgba(78,205,196,.2);border-radius:6px 6px 0 0;transition:height .8s cubic-bezier(.4,0,.2,1);min-height:4px}
+    .bar.active-bar{background:#4ECDC4}
+    .bar-day{font-size:.65rem;color:#8892A4}
+
+    /* Category breakdown */
+    .cat-wrap{padding:0 20px 24px}
+    .cat-wrap h2{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:600;margin-bottom:14px}
+    .cat-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .cat-icon{font-size:1.4rem;width:36px;text-align:center}
+    .cat-bar-wrap{flex:1}
+    .cat-name{font-size:.82rem;font-weight:500;margin-bottom:4px}
+    .cat-bar-bg{height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+    .cat-bar-fill{height:100%;background:#4ECDC4;border-radius:3px;transition:width 1s ease}
+    .cat-count{font-size:.78rem;color:#8892A4;white-space:nowrap}
+
+    /* Best streak */
+    .best-streak-card{margin:0 20px 24px;padding:18px 20px;background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:18px;display:flex;justify-content:space-between;align-items:center}
+    .best-label{font-size:.85rem;color:#8892A4}
+    .best-val{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:#FFD93D}
+
+    /* Empty state */
+    .empty-progress{text-align:center;padding:60px 20px;color:#4A5568}
+    .empty-progress p{font-size:.95rem;margin-top:8px}
+    .empty-btn{margin-top:20px;padding:14px 32px;background:#4ECDC4;color:#0A0F1E;border-radius:14px;border:none;font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer}
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg><span>Главная</span></a>
+    <a href="exercises.html" class="nav-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg><span>Упражнения</span></a>
+    <a href="session.html" class="nav-item nav-item--cta"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5,3 19,12 5,21"/></svg></a>
+    <a href="progress.html" class="nav-item active"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Прогресс</span></a>
+    <a href="profile.html" class="nav-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Профиль</span></a>
+  </nav>
+
+  <main class="page-content">
+    <header class="page-header">
+      <h1 id="page-title">Прогресс</h1>
+    </header>
+
+    <div class="period-tabs">
+      <button class="period-tab active" onclick="setPeriod('week',this)" id="tab-week">Неделя</button>
+      <button class="period-tab" onclick="setPeriod('month',this)" id="tab-month">Месяц</button>
+      <button class="period-tab" onclick="setPeriod('all',this)" id="tab-all">Всё время</button>
+    </div>
+
+    <div id="progress-content"></div>
+  </main>
+</div>
+
+<script src="js/i18n.js"></script>
+<script src="js/storage.js"></script>
+<script>
+const lang = getLang() || detectLang();
+setLang(lang);
+let currentPeriod = 'week';
+
+function setPeriod(period, btn) {
+  currentPeriod = period;
+  document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderProgress();
+}
+
+function renderProgress() {
+  const sessions = getSessions();
+  const stats    = getStats();
+  const content  = document.getElementById('progress-content');
+
+  if (!sessions.length) {
+    content.innerHTML = `
+      <div class="empty-progress">
+        <div style="font-size:3rem">📊</div>
+        <p>${lang==='en'?'No sessions yet. Start your first workout!':'Тренировок пока нет. Начни первую!'}</p>
+        <button class="empty-btn" onclick="window.location='session.html'">${lang==='en'?'Start workout':'Начать тренировку'}</button>
+      </div>`;
+    return;
+  }
+
+  // Filter sessions by period
+  const now = new Date();
+  const filtered = sessions.filter(s => {
+    const d = new Date(s.completedAt || s.date);
+    if (currentPeriod === 'week') {
+      const weekAgo = new Date(now); weekAgo.setDate(now.getDate()-7);
+      return d >= weekAgo;
+    }
+    if (currentPeriod === 'month') {
+      const monthAgo = new Date(now); monthAgo.setMonth(now.getMonth()-1);
+      return d >= monthAgo;
+    }
+    return true;
+  });
+
+  const totalMin = filtered.reduce((s,x)=>s+(x.durationMin||0),0);
+
+  // Streak ring (out of 7 days)
+  const ringPct = Math.min(stats.streak/7, 1);
+  const circumference = 264;
+  const offset = circumference - ringPct * circumference;
+
+  // Bar chart data — last 7 days
+  const days = lang==='en' ? ['Mo','Tu','We','Th','Fr','Sa','Su'] : ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+  const today = new Date();
+  const startOfWeek = new Date(today);
+  const dow = today.getDay();
+  startOfWeek.setDate(today.getDate() - (dow===0?6:dow-1));
+  const weekBars = [];
+  for (let i=0;i<7;i++) {
+    const d = new Date(startOfWeek); d.setDate(startOfWeek.getDate()+i);
+    const ds = d.toISOString().split('T')[0];
+    const count = sessions.filter(s=>s.date===ds).length;
+    weekBars.push({ label: days[i], count, isToday: ds===today.toISOString().split('T')[0] });
+  }
+  const maxBar = Math.max(...weekBars.map(b=>b.count), 1);
+
+  // Category breakdown
+  const catCounts = {};
+  filtered.forEach(s => { catCounts[s.category] = (catCounts[s.category]||0)+1; });
+  const catData = [
+    {cat:'arms', icon:'💪', label: lang==='en'?'Arms':'Руки'},
+    {cat:'legs', icon:'🦵', label: lang==='en'?'Legs':'Ноги'},
+    {cat:'back', icon:'🔙', label: lang==='en'?'Back':'Спина'},
+    {cat:'neck', icon:'🧠', label: lang==='en'?'Neck':'Шея'},
+    {cat:'core', icon:'⚡', label: lang==='en'?'Core':'Корпус'},
+    {cat:'full', icon:'✨', label: lang==='en'?'Warm-up':'Разминка'},
+  ].filter(c=>catCounts[c.cat]>0)
+   .sort((a,b)=>(catCounts[b.cat]||0)-(catCounts[a.cat]||0));
+  const maxCat = Math.max(...catData.map(c=>catCounts[c.cat]||0), 1);
+
+  content.innerHTML = `
+    <!-- Streak hero -->
+    <div class="streak-hero">
+      <div class="streak-ring">
+        <svg viewBox="0 0 96 96">
+          <circle class="streak-ring-bg" cx="48" cy="48" r="42"/>
+          <circle class="streak-ring-fill" cx="48" cy="48" r="42" id="ring-fill"/>
+        </svg>
+        <div class="streak-center">
+          <span class="streak-num">${stats.streak}</span>
+          <span class="streak-fire">🔥</span>
+        </div>
+      </div>
+      <div class="streak-info">
+        <h3>${lang==='en'?'Current streak':'Текущая серия'}</h3>
+        <p>${lang==='en'?`${stats.streak} days in a row`:`${stats.streak} ${stats.streak===1?'день':stats.streak<5?'дня':'дней'} подряд`}</p>
+        <p style="margin-top:6px;color:#4ECDC4;font-size:.8rem">${lang==='en'?`Best: ${stats.bestStreak} days`:`Рекорд: ${stats.bestStreak} дн.`}</p>
+      </div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="stats-row">
+      <div class="stat-tile"><div class="stat-tile-val">${filtered.length}</div><div class="stat-tile-lbl">${lang==='en'?'sessions':'тренировок'}</div></div>
+      <div class="stat-tile"><div class="stat-tile-val">${totalMin}</div><div class="stat-tile-lbl">${lang==='en'?'minutes':'минут'}</div></div>
+      <div class="stat-tile"><div class="stat-tile-val">${stats.bestStreak}</div><div class="stat-tile-lbl">${lang==='en'?'best streak':'рекорд'}</div></div>
+    </div>
+
+    <!-- Week bar chart -->
+    <div class="chart-wrap">
+      <h2>${lang==='en'?'This week':'Эта неделя'}</h2>
+      <div class="bar-chart">
+        ${weekBars.map(b=>`
+          <div class="bar-col">
+            <div class="bar ${b.isToday?'active-bar':''}" style="height:${Math.max(4,(b.count/maxBar)*90)}px"></div>
+            <span class="bar-day">${b.label}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Category breakdown -->
+    ${catData.length ? `
+    <div class="cat-wrap">
+      <h2>${lang==='en'?'By category':'По категориям'}</h2>
+      ${catData.map(c=>`
+        <div class="cat-row">
+          <span class="cat-icon">${c.icon}</span>
+          <div class="cat-bar-wrap">
+            <div class="cat-name">${c.label}</div>
+            <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${((catCounts[c.cat]||0)/maxCat)*100}%"></div></div>
+          </div>
+          <span class="cat-count">${catCounts[c.cat]||0} ${lang==='en'?'ses':'сес.'}</span>
+        </div>`).join('')}
+    </div>` : ''}
+  `;
+
+  // Animate ring after render
+  setTimeout(() => {
+    const ring = document.getElementById('ring-fill');
+    if (ring) ring.style.strokeDashoffset = offset;
+  }, 100);
+}
+
+renderProgress();
+</script>
+</body>
+</html>
