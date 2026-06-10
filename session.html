@@ -214,9 +214,14 @@ let stableSince = 0;         // when required landmarks became continuously visi
 let armed = false;           // counting enabled only when armed
 let breathTimer = null;
 
+// ── FEATURE FLAGS: переключи на true когда будут готовы файлы ──
+const ENABLE_AUDIO  = false;  // true когда зальёшь профессиональную озвучку в audio/
+const ENABLE_HEROES = false;  // true когда зальёшь свой дизайн героев в heroes/
+
 // ── AUDIO: real mp3 voice from old code (relative paths for GitHub Pages) ──
 let _currentAudio = null;
 function playAudio(src){
+  if(!ENABLE_AUDIO) return;
   try{
     if(_currentAudio){_currentAudio.pause();_currentAudio=null;}
     const a=new Audio(src);
@@ -555,13 +560,17 @@ function finish(){
   document.getElementById('screen-prep').style.display='none';
   document.getElementById('screen-done').style.display='flex';
 
-  // Kazakh hero (from old code)
-  const hero=kazakhHeroes[Math.floor(Math.random()*kazakhHeroes.length)];
-  document.getElementById('hero-img').src=hero.img;
-  document.getElementById('hero-img').alt=lang==='en'?hero.nameEn:hero.name;
-  document.getElementById('hero-name').textContent=lang==='en'?hero.nameEn:hero.name;
-  document.getElementById('hero-title').textContent=lang==='en'?hero.titleEn:hero.title;
-  document.getElementById('hero-quote').textContent='«'+(lang==='en'?hero.quoteEn:hero.quote)+'»';
+  // Kazakh hero (включится когда ENABLE_HEROES=true и зальёшь дизайн в heroes/)
+  if(ENABLE_HEROES){
+    const hero=kazakhHeroes[Math.floor(Math.random()*kazakhHeroes.length)];
+    document.getElementById('hero-img').src=hero.img;
+    document.getElementById('hero-img').alt=lang==='en'?hero.nameEn:hero.name;
+    document.getElementById('hero-name').textContent=lang==='en'?hero.nameEn:hero.name;
+    document.getElementById('hero-title').textContent=lang==='en'?hero.titleEn:hero.title;
+    document.getElementById('hero-quote').textContent='«'+(lang==='en'?hero.quoteEn:hero.quote)+'»';
+  } else {
+    document.getElementById('hero-card').style.display='none';
+  }
 
   const pts=sessionPoints||totalReps*10;
   document.getElementById('d-reps').textContent=totalReps;
