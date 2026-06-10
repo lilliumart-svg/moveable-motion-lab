@@ -6,128 +6,171 @@
   <title>Тренировка — MoveAble</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="css/main.css"/>
+
+  <!-- MediaPipe Pose — настоящее компьютерное зрение -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{background:#0A0F1E;color:#F7F7F7;font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
-    .session-top{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;gap:12px;padding:16px 20px;background:linear-gradient(to bottom,rgba(10,15,30,.95),transparent)}
-    .session-back{width:40px;height:40px;flex-shrink:0;background:rgba(26,37,64,.8);border:1px solid rgba(255,255,255,.08);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#8892A4;text-decoration:none;transition:all .2s}
-    .session-back:hover{color:#4ECDC4;border-color:#4ECDC4}
-    .progress-bar-wrap{flex:1;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
-    .progress-bar-fill{height:100%;background:#4ECDC4;border-radius:2px;transition:width .5s ease;width:0%}
-    .progress-counter{font-size:.8rem;color:#8892A4;font-weight:600;white-space:nowrap}
-    .camera-zone{position:relative;width:100%;height:280px;background:#060A14;overflow:hidden}
-    #camera-feed{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
-    .camera-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 50%,#0A0F1E 100%);pointer-events:none}
-    #pose-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-    .cam-status{position:absolute;top:60px;right:12px;display:flex;align-items:center;gap:6px;background:rgba(10,15,30,.85);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:6px 12px;font-size:.75rem;font-weight:600}
-    .cam-dot{width:8px;height:8px;border-radius:50%;background:#FF6B6B}
-    .cam-dot.active{background:#6BCB77;animation:blink 1.5s infinite}
+    body{background:#0A0F1E;color:#F7F7F7;font-family:'Inter',sans-serif;min-height:100vh}
+
+    .top-bar{display:flex;align-items:center;gap:12px;padding:14px 16px;background:#0A0F1E;position:sticky;top:0;z-index:50}
+    .btn-back{width:38px;height:38px;background:#1A2540;border:1px solid rgba(255,255,255,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#8892A4;text-decoration:none;flex-shrink:0}
+    .prog-bar{flex:1;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+    .prog-fill{height:100%;background:#4ECDC4;border-radius:2px;transition:width .5s ease;width:0%}
+    .prog-lbl{font-size:.78rem;color:#8892A4;font-weight:600;white-space:nowrap}
+
+    /* TOP ROW */
+    .top-row{display:flex;gap:10px;padding:10px 16px;align-items:flex-start}
+
+    /* Camera */
+    .camera-pip{width:100px;height:134px;border-radius:14px;overflow:hidden;border:2px solid rgba(78,205,196,.35);background:#060A14;position:relative;flex-shrink:0}
+    #camera-feed{width:100%;height:100%;object-fit:cover;transform:scaleX(-1);display:block}
+    #pose-canvas{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1)}
+    .cam-badge{position:absolute;bottom:4px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:3px;font-size:.56rem;font-weight:700;color:#fff;background:rgba(0,0,0,.6);padding:3px 0}
+    .cam-dot{width:5px;height:5px;border-radius:50%;background:#FF6B6B;flex-shrink:0;transition:background .3s}
+    .cam-dot.on{background:#6BCB77;animation:blink 1.5s infinite}
+    .cam-dot.tracking{background:#4ECDC4;animation:none}
     @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-    .cv-feedback{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(78,205,196,.15);border:1px solid #4ECDC4;border-radius:20px;padding:6px 18px;font-size:.82rem;font-weight:600;color:#4ECDC4;white-space:nowrap;opacity:0;transition:opacity .4s}
-    .cv-feedback.show{opacity:1}
-    .cam-placeholder{width:100%;height:100%;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#4A5568}
-    .cam-placeholder svg{width:44px;height:44px;stroke:#4A5568}
-    .cam-placeholder p{font-size:.82rem}
-    .svg-hint{position:fixed;bottom:96px;left:14px;z-index:40;width:106px;height:106px;background:rgba(17,24,39,.95);border:1px solid rgba(78,205,196,.3);border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;box-shadow:0 8px 32px rgba(0,0,0,.4)}
-    .svg-hint svg{width:62px;height:62px}
-    .svg-hint__label{font-size:.6rem;color:#8892A4;text-align:center;line-height:1.3}
-    .exercise-panel{padding:18px 20px 0}
-    .ex-header{display:flex;align-items:center;gap:14px;margin-bottom:16px}
-    .ex-emoji{font-size:2.2rem}
-    .ex-title{font-family:'Space Grotesk',sans-serif;font-size:1.25rem;font-weight:700;line-height:1.2}
-    .ex-subtitle{font-size:.8rem;color:#8892A4;margin-top:3px}
-    .metric-row{display:flex;gap:12px;margin-bottom:18px}
-    .metric-box{flex:1;background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px;text-align:center}
-    .metric-box.accent{border-color:#4ECDC4;background:rgba(78,205,196,.08)}
-    .metric-val{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:700;color:#4ECDC4;line-height:1}
-    .metric-lbl{font-size:.72rem;color:#8892A4;margin-top:4px}
-    .steps-list{margin-bottom:20px}
-    .step-row{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)}
-    .step-row:last-child{border-bottom:none}
-    .step-n{width:22px;height:22px;flex-shrink:0;border-radius:50%;background:rgba(78,205,196,.12);border:1px solid #4ECDC4;font-size:.7rem;font-weight:700;color:#4ECDC4;display:flex;align-items:center;justify-content:center}
-    .step-txt{font-size:.86rem;color:#F7F7F7;line-height:1.5}
-    .action-row{display:flex;gap:12px;padding:16px 20px 36px;position:sticky;bottom:0;background:linear-gradient(to top,#0A0F1E 70%,transparent);padding-top:20px}
-    .btn-skip{flex:1;padding:15px;background:#1A2540;border:1px solid rgba(255,255,255,.08);border-radius:14px;color:#8892A4;font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:600;cursor:pointer;transition:all .2s}
+    .cam-no{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:4px;font-size:.6rem;color:#4A5568;text-align:center;padding:8px}
+    .cam-no svg{width:24px;height:24px;stroke:#4A5568}
+
+    /* Loading overlay */
+    .cam-loading{position:absolute;inset:0;background:rgba(6,10,20,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:.6rem;color:#4ECDC4;text-align:center;padding:8px}
+    .spinner{width:20px;height:20px;border:2px solid rgba(78,205,196,.2);border-top-color:#4ECDC4;border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* SVG hint */
+    .svg-hint{width:78px;height:134px;background:#111827;border:1px solid rgba(78,205,196,.2);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px;flex-shrink:0}
+    .svg-hint svg{width:54px;height:54px}
+    .svg-hint-lbl{font-size:.56rem;color:#8892A4;text-align:center;line-height:1.3}
+
+    /* Metrics */
+    .metrics-col{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0}
+    .metric-chip{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 8px;text-align:center}
+    .metric-chip.accent{border-color:#4ECDC4;background:rgba(78,205,196,.08)}
+    .metric-num{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:#4ECDC4;line-height:1}
+    .metric-lbl{font-size:.62rem;color:#8892A4;margin-top:2px}
+
+    /* Rep counter — live from CV */
+    .rep-live{background:#111827;border:1px solid rgba(255,217,61,.3);border-radius:12px;padding:10px 8px;text-align:center}
+    .rep-live-num{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:#FFD93D;line-height:1}
+    .rep-live-lbl{font-size:.62rem;color:#8892A4;margin-top:2px}
+
+    /* CV feedback bar */
+    .cv-bar{margin:4px 16px 0;padding:7px 12px;background:rgba(78,205,196,.08);border:1px solid rgba(78,205,196,.2);border-radius:10px;font-size:.72rem;font-weight:600;color:#4ECDC4;text-align:center;min-height:30px;transition:all .3s}
+    .cv-bar.good{background:rgba(107,203,119,.1);border-color:rgba(107,203,119,.4);color:#6BCB77}
+    .cv-bar.warn{background:rgba(255,107,107,.1);border-color:rgba(255,107,107,.4);color:#FF6B6B}
+
+    /* Exercise info */
+    .ex-info{padding:12px 16px 0}
+    .ex-name{font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:4px}
+    .ex-desc{font-size:.8rem;color:#8892A4;line-height:1.5;margin-bottom:14px}
+    .steps{display:flex;flex-direction:column}
+    .step{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+    .step:last-child{border-bottom:none}
+    .step-n{width:22px;height:22px;flex-shrink:0;border-radius:50%;background:rgba(78,205,196,.1);border:1px solid #4ECDC4;font-size:.68rem;font-weight:700;color:#4ECDC4;display:flex;align-items:center;justify-content:center;transition:all .3s}
+    .step-n.done{background:#4ECDC4;color:#0A0F1E}
+    .step-t{font-size:.88rem;line-height:1.55}
+
+    /* Buttons */
+    .btns{display:flex;gap:10px;padding:16px;position:sticky;bottom:0;background:linear-gradient(to top,#0A0F1E 80%,transparent)}
+    .btn-skip{flex:1;padding:14px;background:#1A2540;border:1px solid rgba(255,255,255,.08);border-radius:12px;color:#8892A4;font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s}
     .btn-skip:hover{border-color:#4ECDC4;color:#4ECDC4}
-    .btn-next{flex:2;padding:15px;background:#4ECDC4;color:#0A0F1E;border-radius:14px;border:none;font-family:'Space Grotesk',sans-serif;font-size:.96rem;font-weight:700;cursor:pointer;transition:all .2s}
-    .btn-next:hover{background:#5ED8CF;transform:translateY(-1px)}
-    .done-screen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;gap:20px;padding:40px 24px}
-    .done-icon{font-size:5rem}
-    .done-title{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:700}
-    .done-msg{color:#8892A4;font-size:.95rem}
-    .done-stats{display:flex;gap:24px}
-    .done-stat-val{font-family:'Space Grotesk',sans-serif;font-size:1.8rem;font-weight:700;color:#4ECDC4}
-    .done-stat-lbl{font-size:.78rem;color:#8892A4}
-    .done-ach{background:rgba(255,217,61,.1);border:1px solid #FFD93D;border-radius:14px;padding:12px 24px;color:#FFD93D;font-size:.9rem;font-weight:600;display:none}
-    .btn-home{width:100%;max-width:320px;padding:16px;background:#4ECDC4;color:#0A0F1E;border-radius:14px;border:none;font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all .2s}
-    .btn-home:hover{background:#5ED8CF}
+    .btn-next{flex:2;padding:14px;background:#4ECDC4;color:#0A0F1E;border-radius:12px;border:none;font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:all .2s}
+    .btn-next:hover{background:#5ED8CF}
+
+    /* Done */
+    .done{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;gap:18px;padding:40px 24px}
+    .done-icon{font-size:4.5rem}
+    .done-title{font-family:'Space Grotesk',sans-serif;font-size:1.9rem;font-weight:700}
+    .done-sub{color:#8892A4;font-size:.9rem}
+    .done-row{display:flex;gap:20px}
+    .done-val{font-family:'Space Grotesk',sans-serif;font-size:1.7rem;font-weight:700;color:#4ECDC4}
+    .done-lbl{font-size:.75rem;color:#8892A4;margin-top:2px}
+    .done-ach{background:rgba(255,217,61,.1);border:1px solid #FFD93D;border-radius:12px;padding:10px 20px;color:#FFD93D;font-size:.88rem;font-weight:600;display:none}
+    .btn-home{width:100%;max-width:280px;padding:15px;background:#4ECDC4;color:#0A0F1E;border-radius:12px;border:none;font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer}
   </style>
 </head>
 <body>
 
-<div class="session-top" id="session-top">
-  <a href="index.html" class="session-back">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15,18 9,12 15,6"/></svg>
+<div class="top-bar">
+  <a href="index.html" class="btn-back">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15,18 9,12 15,6"/></svg>
   </a>
-  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill"></div></div>
-  <span class="progress-counter" id="prog-counter">1 / 5</span>
+  <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
+  <span class="prog-lbl" id="prog-lbl">1 / 5</span>
 </div>
 
-<div class="camera-zone" id="camera-zone">
-  <video id="camera-feed" autoplay muted playsinline></video>
-  <canvas id="pose-canvas"></canvas>
-  <div class="camera-overlay"></div>
-  <div class="cam-status">
-    <div class="cam-dot" id="cam-dot"></div>
-    <span id="cam-label">Камера</span>
-  </div>
-  <div class="cv-feedback" id="cv-feedback">Отличная техника!</div>
-  <div class="cam-placeholder" id="cam-placeholder">
-    <svg viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13" r="4" stroke-width="2"/></svg>
-    <p id="cam-ph-text">Разрешите доступ к камере</p>
-  </div>
-</div>
-
-<div class="svg-hint" id="svg-hint">
-  <svg id="hint-svg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"></svg>
-  <span class="svg-hint__label" id="hint-label">Как делать</span>
-</div>
-
-<div class="exercise-panel" id="exercise-panel">
-  <div class="ex-header">
-    <span class="ex-emoji" id="ex-emoji">💪</span>
-    <div>
-      <div class="ex-title" id="ex-title">—</div>
-      <div class="ex-subtitle" id="ex-subtitle">—</div>
+<div class="top-row">
+  <!-- Camera PiP -->
+  <div class="camera-pip">
+    <video id="camera-feed" autoplay muted playsinline></video>
+    <canvas id="pose-canvas"></canvas>
+    <div class="cam-loading" id="cam-loading">
+      <div class="spinner"></div>
+      <span>CV загрузка…</span>
+    </div>
+    <div class="cam-badge">
+      <div class="cam-dot" id="cam-dot"></div>
+      <span id="cam-lbl">Камера</span>
+    </div>
+    <div class="cam-no" id="cam-no">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke-width="2"/><circle cx="12" cy="13" r="4" stroke-width="2"/></svg>
+      <span>Нет камеры</span>
     </div>
   </div>
-  <div class="metric-row">
-    <div class="metric-box accent">
-      <div class="metric-val" id="metric-val">12</div>
-      <div class="metric-lbl" id="metric-lbl">повторений</div>
+
+  <!-- SVG hint -->
+  <div class="svg-hint">
+    <svg id="hint-svg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"></svg>
+    <span class="svg-hint-lbl" id="hint-lbl">Как делать</span>
+  </div>
+
+  <!-- Metrics + live rep counter -->
+  <div class="metrics-col">
+    <div class="metric-chip accent">
+      <div class="metric-num" id="m-val">10</div>
+      <div class="metric-lbl" id="m-lbl">повт.</div>
     </div>
-    <div class="metric-box">
-      <div class="metric-val" id="sets-val">3</div>
-      <div class="metric-lbl" id="sets-lbl">подходов</div>
+    <div class="metric-chip">
+      <div class="metric-num" id="m-sets">3</div>
+      <div class="metric-lbl" id="m-sets-lbl">подх.</div>
+    </div>
+    <div class="rep-live">
+      <div class="rep-live-num" id="rep-live">0</div>
+      <div class="rep-live-lbl" id="rep-live-lbl">CV счёт</div>
     </div>
   </div>
-  <div class="steps-list" id="steps-list"></div>
 </div>
 
-<div class="action-row">
+<!-- CV feedback -->
+<div class="cv-bar" id="cv-bar">Инициализация компьютерного зрения…</div>
+
+<!-- Exercise info -->
+<div class="ex-info" id="ex-info">
+  <div class="ex-name" id="ex-name">—</div>
+  <div class="ex-desc" id="ex-desc">—</div>
+  <div class="steps" id="steps"></div>
+</div>
+
+<div class="btns">
   <button class="btn-skip" onclick="skipEx()">Пропустить</button>
   <button class="btn-next" id="btn-next" onclick="nextEx()">Следующее →</button>
 </div>
 
-<div class="done-screen" id="done-screen">
+<div class="done" id="done">
   <div class="done-icon">🎉</div>
   <div class="done-title">Отлично!</div>
-  <div class="done-msg">Тренировка завершена</div>
-  <div class="done-stats">
-    <div class="done-stat"><div class="done-stat-val" id="d-count">0</div><div class="done-stat-lbl">упражнений</div></div>
-    <div class="done-stat"><div class="done-stat-val" id="d-min">0</div><div class="done-stat-lbl">минут</div></div>
+  <div class="done-sub" id="done-sub">Тренировка завершена</div>
+  <div class="done-row">
+    <div><div class="done-val" id="d-cnt">0</div><div class="done-lbl">упражнений</div></div>
+    <div><div class="done-val" id="d-min">0</div><div class="done-lbl">минут</div></div>
+    <div><div class="done-val" id="d-reps">0</div><div class="done-lbl">CV повторений</div></div>
   </div>
   <div class="done-ach" id="done-ach"></div>
   <button class="btn-home" onclick="window.location='index.html'">На главную</button>
@@ -142,109 +185,323 @@ setLang(lang);
 const cat = localStorage.getItem('mv_session_cat') || 'arms';
 const plan = getSessionPlan(cat, lang);
 let idx = 0;
-const sessionStart = Date.now();
+const t0 = Date.now();
+let totalCvReps = 0;
 
-const SVG_HINTS = {
-  arms:`<g stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round" fill="none"><circle cx="40" cy="13" r="7"/><line x1="40" y1="20" x2="40" y2="46"/><line x1="40" y1="30" x2="24" y2="40"/><line x1="40" y1="46" x2="30" y2="64"/><line x1="40" y1="46" x2="50" y2="64"/><line x1="40" y1="30" x2="56" y2="40"><animateTransform attributeName="transform" type="rotate" values="0 40 30;-35 40 30;0 40 30" dur="1.5s" repeatCount="indefinite"/></line></g>`,
-  legs:`<g stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round" fill="none"><circle cx="40" cy="13" r="7"/><line x1="40" y1="20" x2="40" y2="46"/><line x1="40" y1="30" x2="26" y2="40"/><line x1="40" y1="30" x2="54" y2="40"/><line x1="40" y1="46" x2="32" y2="60"/><line x1="40" y1="46" x2="48" y2="60"/><line x1="32" y1="60" x2="32" y2="75"><animateTransform attributeName="transform" type="rotate" values="0 32 60;35 32 60;0 32 60" dur="1.6s" repeatCount="indefinite"/></line></g>`,
-  neck:`<g stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round" fill="none"><circle cx="40" cy="13" r="7"><animateTransform attributeName="transform" type="rotate" values="0 40 13;18 40 13;-18 40 13;0 40 13" dur="2s" repeatCount="indefinite"/></circle><line x1="40" y1="20" x2="40" y2="46"/><line x1="40" y1="30" x2="26" y2="40"/><line x1="40" y1="30" x2="54" y2="40"/><line x1="40" y1="46" x2="30" y2="64"/><line x1="40" y1="46" x2="50" y2="64"/></g>`,
-  back:`<g stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round" fill="none"><circle cx="40" cy="13" r="7"/><path d="M40 20 Q36 33 40 46"><animate attributeName="d" values="M40 20 Q36 33 40 46;M40 20 Q44 33 40 46;M40 20 Q36 33 40 46" dur="2s" repeatCount="indefinite"/></path><line x1="40" y1="30" x2="26" y2="40"/><line x1="40" y1="30" x2="54" y2="40"/><line x1="40" y1="46" x2="30" y2="64"/><line x1="40" y1="46" x2="50" y2="64"/></g>`,
-  core:`<g stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round" fill="none"><circle cx="40" cy="13" r="7"/><line x1="40" y1="20" x2="40" y2="46"/><line x1="40" y1="30" x2="26" y2="40"/><line x1="40" y1="30" x2="54" y2="40"/><line x1="40" y1="46" x2="30" y2="64"/><line x1="40" y1="46" x2="50" y2="64"/><ellipse cx="40" cy="35" rx="10" ry="6" opacity="0.4"><animate attributeName="rx" values="10;15;10" dur="1.5s" repeatCount="indefinite"/></ellipse></g>`,
-  full:`<g stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round" fill="none"><circle cx="40" cy="13" r="7"/><line x1="40" y1="20" x2="40" y2="46"/><line x1="40" y1="30" x2="26" y2="40"><animateTransform attributeName="transform" type="rotate" values="0 40 30;-22 40 30;0 40 30" dur="1s" repeatCount="indefinite"/></line><line x1="40" y1="30" x2="54" y2="40"><animateTransform attributeName="transform" type="rotate" values="0 40 30;22 40 30;0 40 30" dur="1s" repeatCount="indefinite"/></line><line x1="40" y1="46" x2="30" y2="64"/><line x1="40" y1="46" x2="50" y2="64"/></g>`,
+// ── SVG HINTS ──
+const SVG = {
+  arms:`<g stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round" fill="none"><circle cx="40" cy="12" r="7"/><line x1="40" y1="19" x2="40" y2="46"/><line x1="40" y1="46" x2="30" y2="64"/><line x1="40" y1="46" x2="50" y2="64"/><line x1="40" y1="30" x2="22" y2="42"/><line x1="40" y1="30" x2="58" y2="42"><animateTransform attributeName="transform" type="rotate" values="0 40 30;-38 40 30;0 40 30" dur="1.5s" repeatCount="indefinite"/></line></g>`,
+  legs:`<g stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round" fill="none"><circle cx="40" cy="12" r="7"/><line x1="40" y1="19" x2="40" y2="46"/><line x1="40" y1="30" x2="26" y2="40"/><line x1="40" y1="30" x2="54" y2="40"/><line x1="40" y1="46" x2="33" y2="60"/><line x1="33" y1="60" x2="28" y2="74"><animateTransform attributeName="transform" type="rotate" values="0 33 60;38 33 60;0 33 60" dur="1.6s" repeatCount="indefinite"/></line><line x1="40" y1="46" x2="47" y2="60"/><line x1="47" y1="60" x2="52" y2="74"/></g>`,
+  neck:`<g stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round" fill="none"><circle cx="40" cy="12" r="7"><animateTransform attributeName="transform" type="rotate" values="0 40 19;18 40 19;-18 40 19;0 40 19" dur="2s" repeatCount="indefinite"/></circle><line x1="40" y1="19" x2="40" y2="46"/><line x1="40" y1="30" x2="26" y2="42"/><line x1="40" y1="30" x2="54" y2="42"/><line x1="40" y1="46" x2="30" y2="64"/><line x1="40" y1="46" x2="50" y2="64"/></g>`,
+  back:`<g stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round" fill="none"><circle cx="40" cy="12" r="7"/><path d="M40 19 Q34 33 40 46"><animate attributeName="d" values="M40 19 Q34 33 40 46;M40 19 Q46 33 40 46;M40 19 Q34 33 40 46" dur="2s" repeatCount="indefinite"/></path><line x1="40" y1="30" x2="26" y2="42"/><line x1="40" y1="30" x2="54" y2="42"/><line x1="40" y1="46" x2="30" y2="64"/><line x1="40" y1="46" x2="50" y2="64"/></g>`,
+  core:`<g stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round" fill="none"><circle cx="40" cy="12" r="7"/><line x1="40" y1="19" x2="40" y2="46"/><line x1="40" y1="30" x2="26" y2="42"/><line x1="40" y1="30" x2="54" y2="42"/><line x1="40" y1="46" x2="30" y2="64"/><line x1="40" y1="46" x2="50" y2="64"/><ellipse cx="40" cy="33" rx="9" ry="5" opacity=".5"><animate attributeName="rx" values="9;14;9" dur="1.4s" repeatCount="indefinite"/></ellipse></g>`,
+  full:`<g stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round" fill="none"><circle cx="40" cy="12" r="7"/><line x1="40" y1="19" x2="40" y2="46"/><line x1="40" y1="30" x2="26" y2="42"><animateTransform attributeName="transform" type="rotate" values="0 40 30;-22 40 30;0 40 30" dur="1s" repeatCount="indefinite"/></line><line x1="40" y1="30" x2="54" y2="42"><animateTransform attributeName="transform" type="rotate" values="0 40 30;22 40 30;0 40 30" dur="1s" repeatCount="indefinite"/></line><line x1="40" y1="46" x2="30" y2="64"/><line x1="40" y1="46" x2="50" y2="64"/></g>`,
 };
 
-async function startCamera() {
-  const video = document.getElementById('camera-feed');
-  const dot   = document.getElementById('cam-dot');
-  const label = document.getElementById('cam-label');
+// ── MEDIAPIPE POSE ──
+// Connections to draw (subset of 33 landmarks)
+const POSE_CONNECTIONS = [
+  [11,12],[11,13],[13,15],[12,14],[14,16], // arms
+  [11,23],[12,24],[23,24],                  // torso
+  [23,25],[25,27],[24,26],[26,28],          // legs
+  [0,11],[0,12]                             // head-shoulders
+];
+
+let pose = null;
+let cvReps = 0;
+let armState = 'down'; // for rep counting: 'up' | 'down'
+let lastLandmarks = null;
+
+function initMediaPipe() {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode:'user' } });
-    video.srcObject = stream;
-    dot.classList.add('active');
-    label.textContent = lang==='en' ? 'Camera on' : 'Камера вкл';
-    video.addEventListener('loadeddata', () => startPoseSim());
+    pose = new Pose({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+    });
+
+    pose.setOptions({
+      modelComplexity: 0,      // 0=lite (fast on mobile), 1=full, 2=heavy
+      smoothLandmarks: true,
+      enableSegmentation: false,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+
+    pose.onResults(onPoseResults);
+
+    const videoEl = document.getElementById('camera-feed');
+
+    const camera = new Camera(videoEl, {
+      onFrame: async () => {
+        if (pose) await pose.send({ image: videoEl });
+      },
+      width: 200,
+      height: 280
+    });
+
+    camera.start().then(() => {
+      document.getElementById('cam-loading').style.display = 'none';
+      document.getElementById('cam-dot').classList.add('on');
+      document.getElementById('cam-lbl').textContent = lang === 'en' ? 'Live' : 'Вкл';
+      setCvBar(lang === 'en' ? 'Pose detection active' : 'Отслеживание позы активно', '');
+    }).catch(handleCameraError);
+
   } catch(e) {
-    video.style.display = 'none';
-    document.getElementById('pose-canvas').style.display = 'none';
-    const ph = document.getElementById('cam-placeholder');
-    ph.style.display = 'flex';
-    label.textContent = lang==='en' ? 'No camera' : 'Нет камеры';
+    console.warn('MediaPipe failed, falling back:', e);
+    fallbackCamera();
   }
 }
 
-function startPoseSim() {
-  const msgs = lang==='en'
-    ? ['Great form! 👍','Keep going!','Perfect range!','Slow it down','Excellent! 🔥']
-    : ['Отличная техника! 👍','Продолжай!','Хорошая амплитуда!','Чуть медленнее','Превосходно! 🔥'];
-  const fb = document.getElementById('cv-feedback');
-  let fi = 0;
-  setInterval(() => {
-    fb.textContent = msgs[fi % msgs.length]; fi++;
-    fb.classList.add('show');
-    setTimeout(() => fb.classList.remove('show'), 2500);
-  }, 5000);
-  drawSkeleton();
-}
-
-function drawSkeleton() {
+function onPoseResults(results) {
   const canvas = document.getElementById('pose-canvas');
-  const video  = document.getElementById('camera-feed');
-  const ctx    = canvas.getContext('2d');
-  function resize() { canvas.width = video.offsetWidth || 360; canvas.height = video.offsetHeight || 280; }
-  resize(); window.addEventListener('resize', resize);
-  let kp = [{x:.50,y:.12},{x:.44,y:.22},{x:.56,y:.22},{x:.36,y:.36},{x:.64,y:.36},{x:.32,y:.50},{x:.68,y:.50},{x:.45,y:.55},{x:.55,y:.55},{x:.43,y:.73},{x:.57,y:.73},{x:.42,y:.90},{x:.58,y:.90}];
-  const CONN = [[1,2],[1,3],[3,5],[2,4],[4,6],[1,7],[2,8],[7,8],[7,9],[9,11],[8,10],[10,12]];
-  function jitter(v,a){return v+(Math.random()-.5)*a}
-  function draw() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    const w=canvas.width, h=canvas.height;
-    kp = kp.map(p=>({x:jitter(p.x,.003),y:jitter(p.y,.003)}));
-    ctx.strokeStyle='rgba(78,205,196,0.75)'; ctx.lineWidth=2.5;
-    CONN.forEach(([a,b])=>{ctx.beginPath();ctx.moveTo(kp[a].x*w,kp[a].y*h);ctx.lineTo(kp[b].x*w,kp[b].y*h);ctx.stroke()});
-    kp.forEach((p,i)=>{ctx.beginPath();ctx.arc(p.x*w,p.y*h,i===0?6:4,0,Math.PI*2);ctx.fillStyle=i===0?'#FF6B6B':'#4ECDC4';ctx.fill()});
-    requestAnimationFrame(draw);
+  const ctx = canvas.getContext('2d');
+  canvas.width  = document.getElementById('camera-feed').offsetWidth  || 100;
+  canvas.height = document.getElementById('camera-feed').offsetHeight || 134;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (!results.poseLandmarks) return;
+
+  lastLandmarks = results.poseLandmarks;
+  const lm = results.poseLandmarks;
+  const w = canvas.width, h = canvas.height;
+
+  // Draw connections
+  ctx.strokeStyle = 'rgba(78,205,196,0.8)';
+  ctx.lineWidth = 1.8;
+  POSE_CONNECTIONS.forEach(([a, b]) => {
+    const pa = lm[a], pb = lm[b];
+    if (!pa || !pb || pa.visibility < 0.3 || pb.visibility < 0.3) return;
+    ctx.beginPath();
+    ctx.moveTo(pa.x * w, pa.y * h);
+    ctx.lineTo(pb.x * w, pb.y * h);
+    ctx.stroke();
+  });
+
+  // Draw keypoints
+  lm.forEach((p, i) => {
+    if (p.visibility < 0.3) return;
+    ctx.beginPath();
+    ctx.arc(p.x * w, p.y * h, i === 0 ? 4 : 3, 0, Math.PI * 2);
+    ctx.fillStyle = i === 0 ? '#FF6B6B' : '#4ECDC4';
+    ctx.fill();
+  });
+
+  // Mark camera as tracking
+  document.getElementById('cam-dot').classList.remove('on');
+  document.getElementById('cam-dot').classList.add('tracking');
+  document.getElementById('cam-lbl').textContent = lang === 'en' ? 'Tracking' : 'Трекинг';
+
+  // Analyze movement based on current exercise category
+  analyzeMovement(lm, cat);
+}
+
+// ── MOVEMENT ANALYSIS ──
+function getAngle(a, b, c) {
+  // Angle at point b between points a and c
+  const ab = { x: a.x - b.x, y: a.y - b.y };
+  const cb = { x: c.x - b.x, y: c.y - b.y };
+  const dot = ab.x * cb.x + ab.y * cb.y;
+  const mag = Math.sqrt(ab.x**2 + ab.y**2) * Math.sqrt(cb.x**2 + cb.y**2);
+  if (mag === 0) return 0;
+  return Math.acos(Math.min(1, Math.max(-1, dot / mag))) * (180 / Math.PI);
+}
+
+function analyzeMovement(lm, category) {
+  if (!lm) return;
+  const cvBar = document.getElementById('cv-bar');
+
+  if (category === 'arms') {
+    // Track right elbow angle (shoulder-elbow-wrist)
+    const rShoulder = lm[12], rElbow = lm[14], rWrist = lm[16];
+    if (rShoulder?.visibility > 0.5 && rElbow?.visibility > 0.5 && rWrist?.visibility > 0.5) {
+      const angle = getAngle(rShoulder, rElbow, rWrist);
+
+      // Rep counting: arm raises/curls
+      // Down = angle > 150°, Up = angle < 90°
+      if (angle < 80 && armState === 'down') {
+        armState = 'up';
+      } else if (angle > 140 && armState === 'up') {
+        armState = 'down';
+        cvReps++;
+        totalCvReps++;
+        document.getElementById('rep-live').textContent = cvReps;
+        setCvBar(`✅ Повторение ${cvReps}!`, 'good');
+      }
+
+      // Posture feedback
+      if (angle > 40 && angle < 80) {
+        setCvBar(lang==='en'?'Good range! Keep going 💪':'Хорошая амплитуда! Продолжай 💪', 'good');
+      }
+    }
+
+  } else if (category === 'neck') {
+    // Track head position relative to shoulders
+    const nose = lm[0], lShoulder = lm[11], rShoulder = lm[12];
+    if (nose?.visibility > 0.5 && lShoulder?.visibility > 0.4 && rShoulder?.visibility > 0.4) {
+      const shoulderMidX = (lShoulder.x + rShoulder.x) / 2;
+      const tilt = Math.abs(nose.x - shoulderMidX);
+
+      if (tilt > 0.08) {
+        setCvBar(lang==='en'?'Head tilted — great! 👍':'Голова наклонена — отлично! 👍', 'good');
+        cvReps++;
+        totalCvReps++;
+        document.getElementById('rep-live').textContent = cvReps;
+      } else {
+        setCvBar(lang==='en'?'Tilt your head more to the side':'Наклони голову больше в сторону', '');
+      }
+    }
+
+  } else if (category === 'back') {
+    // Track spine curvature via shoulder-hip alignment
+    const lShoulder = lm[11], rShoulder = lm[12], lHip = lm[23], rHip = lm[24];
+    if ([lShoulder, rShoulder, lHip, rHip].every(p => p?.visibility > 0.4)) {
+      const shoulderMidX = (lShoulder.x + rShoulder.x) / 2;
+      const hipMidX     = (lHip.x + rHip.x) / 2;
+      const rotation = Math.abs(shoulderMidX - hipMidX);
+
+      if (rotation > 0.05) {
+        cvReps++;
+        totalCvReps++;
+        document.getElementById('rep-live').textContent = cvReps;
+        setCvBar(lang==='en'?'Good rotation! 🔄':'Хорошее скручивание! 🔄', 'good');
+      } else {
+        setCvBar(lang==='en'?'Rotate your upper body more':'Скрути корпус сильнее', '');
+      }
+    }
+
+  } else if (category === 'legs') {
+    // Track knee lift — right hip vs right knee y position
+    const rHip = lm[24], rKnee = lm[26];
+    if (rHip?.visibility > 0.4 && rKnee?.visibility > 0.4) {
+      const kneeRaised = rHip.y - rKnee.y; // positive = knee above hip
+
+      if (kneeRaised > 0.04 && armState === 'down') {
+        armState = 'up';
+        setCvBar(lang==='en'?'Knee raised! 🦵':'Колено поднято! 🦵', 'good');
+      } else if (kneeRaised < 0.01 && armState === 'up') {
+        armState = 'down';
+        cvReps++;
+        totalCvReps++;
+        document.getElementById('rep-live').textContent = cvReps;
+        setCvBar(`✅ Повторение ${cvReps}`, 'good');
+      }
+    }
+
+  } else if (category === 'core') {
+    // Track forward lean — nose y vs shoulder y
+    const nose = lm[0], lShoulder = lm[11];
+    if (nose?.visibility > 0.5 && lShoulder?.visibility > 0.4) {
+      const lean = nose.y - lShoulder.y;
+      if (lean < 0.05) {
+        setCvBar(lang==='en'?'Lean forward more':'Наклонись вперёд больше', 'warn');
+      } else {
+        setCvBar(lang==='en'?'Good core activation! ⚡':'Хорошая активация кора! ⚡', 'good');
+      }
+    }
+
+  } else {
+    // Full body / generic
+    const detected = lm.filter(p => p.visibility > 0.5).length;
+    if (detected > 15) {
+      setCvBar(lang==='en'?`${detected} points tracked ✓`:`${detected} точек отслеживается ✓`, 'good');
+    } else {
+      setCvBar(lang==='en'?'Move into frame':'Встань в кадр', '');
+    }
   }
-  draw();
 }
 
-function loadExercise() {
-  if(idx>=plan.length){finishSession();return;}
+let cvBarTimer = null;
+function setCvBar(msg, type) {
+  const el = document.getElementById('cv-bar');
+  el.textContent = msg;
+  el.className = 'cv-bar' + (type ? ' ' + type : '');
+  clearTimeout(cvBarTimer);
+}
+
+// ── FALLBACK (no MediaPipe) ──
+function fallbackCamera() {
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+    .then(stream => {
+      const v = document.getElementById('camera-feed');
+      v.srcObject = stream;
+      document.getElementById('cam-loading').style.display = 'none';
+      document.getElementById('cam-dot').classList.add('on');
+      document.getElementById('cam-lbl').textContent = lang === 'en' ? 'Live' : 'Вкл';
+      setCvBar(lang==='en'?'Camera on (no pose detection)':'Камера вкл (без CV)', '');
+    })
+    .catch(handleCameraError);
+}
+
+function handleCameraError() {
+  document.getElementById('cam-loading').style.display = 'none';
+  document.getElementById('camera-feed').style.display = 'none';
+  document.getElementById('pose-canvas').style.display = 'none';
+  document.getElementById('cam-no').style.display = 'flex';
+  document.getElementById('cam-lbl').textContent = '—';
+  setCvBar(lang==='en'?'Camera not available':'Камера недоступна', 'warn');
+}
+
+// ── LOAD EXERCISE ──
+function loadEx() {
+  if (idx >= plan.length) { finish(); return; }
   const ex = plan[idx];
-  document.getElementById('ex-emoji').textContent   = ex.icon;
-  document.getElementById('ex-title').textContent   = ex.displayName;
-  document.getElementById('ex-subtitle').textContent= ex.displayDesc;
-  document.getElementById('metric-val').textContent = ex.durationSec || ex.reps || 10;
-  document.getElementById('metric-lbl').textContent = ex.durationSec ? (lang==='en'?'seconds':'секунд') : (lang==='en'?'reps':'повторений');
-  document.getElementById('sets-val').textContent   = ex.sets || 3;
-  document.getElementById('sets-lbl').textContent   = lang==='en'?'sets':'подходов';
-  document.getElementById('steps-list').innerHTML   = (ex.steps||[]).map((s,i)=>`<div class="step-row"><span class="step-n">${i+1}</span><span class="step-txt">${s}</span></div>`).join('');
+  cvReps = 0;
+  armState = 'down';
+  document.getElementById('rep-live').textContent = '0';
+  document.getElementById('rep-live-lbl').textContent = lang === 'en' ? 'CV count' : 'CV счёт';
+
+  document.getElementById('ex-name').textContent = ex.displayName;
+  document.getElementById('ex-desc').textContent = ex.displayDesc;
+  document.getElementById('m-val').textContent   = ex.durationSec || ex.reps || 10;
+  document.getElementById('m-lbl').textContent   = ex.durationSec ? (lang==='en'?'sec':'сек') : (lang==='en'?'reps':'повт.');
+  document.getElementById('m-sets').textContent  = ex.sets || 3;
+  document.getElementById('m-sets-lbl').textContent = lang==='en'?'sets':'подх.';
+  document.getElementById('steps').innerHTML     = (ex.steps||[]).map((s,i)=>`<div class="step"><span class="step-n">${i+1}</span><span class="step-t">${s}</span></div>`).join('');
   document.getElementById('prog-fill').style.width  = `${(idx/plan.length)*100}%`;
-  document.getElementById('prog-counter').textContent=`${idx+1} / ${plan.length}`;
-  document.getElementById('hint-svg').innerHTML     = SVG_HINTS[ex.category]||SVG_HINTS.arms;
-  document.getElementById('hint-label').textContent = lang==='en'?'How to do':'Как делать';
-  document.getElementById('btn-next').textContent   = idx===plan.length-1?(lang==='en'?'Complete ✓':'Завершить ✓'):(lang==='en'?'Next →':'Следующее →');
+  document.getElementById('prog-lbl').textContent   = `${idx+1} / ${plan.length}`;
+  document.getElementById('hint-svg').innerHTML      = SVG[ex.category] || SVG.arms;
+  document.getElementById('hint-lbl').textContent   = lang==='en'?'How to':'Как делать';
+  document.getElementById('btn-next').textContent   = idx === plan.length-1
+    ? (lang==='en'?'Complete ✓':'Завершить ✓')
+    : (lang==='en'?'Next →':'Следующее →');
 }
 
-function nextEx(){idx++;if(idx>=plan.length)finishSession();else loadExercise();}
-function skipEx(){nextEx();}
+function nextEx() { idx++; if (idx >= plan.length) finish(); else loadEx(); }
+function skipEx() { nextEx(); }
 
-function finishSession(){
-  const dMin=Math.max(1,Math.round((Date.now()-sessionStart)/60000));
-  saveSession({category:cat,title:plan[0]?.displayName||cat,durationMin:dMin,exercises:plan.map(e=>e.id)});
-  const {new:na}=checkAchievements();
-  const v=document.getElementById('camera-feed');
-  if(v.srcObject)v.srcObject.getTracks().forEach(t=>t.stop());
-  ['session-top','camera-zone','svg-hint','exercise-panel'].forEach(id=>document.getElementById(id).style.display='none');
-  document.querySelector('.action-row').style.display='none';
-  const done=document.getElementById('done-screen');
-  done.style.display='flex';
-  document.getElementById('d-count').textContent=plan.length;
-  document.getElementById('d-min').textContent=dMin;
-  if(na.length){const names={first_step:'👣 Первый шаг!',week_warrior:'🏆 Воин недели!',mover:'🚀 В движении!',dedicated:'💎 Преданность!'};const el=document.getElementById('done-ach');el.textContent=names[na[0]]||'🏅 Новое достижение!';el.style.display='block';}
+function finish() {
+  const dMin = Math.max(1, Math.round((Date.now()-t0)/60000));
+  saveSession({ category:cat, title:plan[0]?.displayName||cat, durationMin:dMin, exercises:plan.map(e=>e.id) });
+  const { new:na } = checkAchievements();
+
+  // Stop camera
+  const v = document.getElementById('camera-feed');
+  if (v.srcObject) v.srcObject.getTracks().forEach(t=>t.stop());
+  if (pose) { pose.close(); pose = null; }
+
+  // Hide UI
+  ['top-bar','top-row','cv-bar','ex-info'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.style.display='none';
+  });
+  document.querySelector('.btns').style.display='none';
+
+  const d = document.getElementById('done');
+  d.style.display = 'flex';
+  document.getElementById('d-cnt').textContent  = plan.length;
+  document.getElementById('d-min').textContent  = dMin;
+  document.getElementById('d-reps').textContent = totalCvReps;
+
+  if (na.length) {
+    const names = { first_step:'👣 Первый шаг!', week_warrior:'🏆 Воин недели!', mover:'🚀 В движении!', dedicated:'💎 Преданность!' };
+    const el = document.getElementById('done-ach');
+    el.textContent = names[na[0]] || '🏅 Новое достижение!';
+    el.style.display = 'block';
+  }
 }
 
-startCamera();
-loadExercise();
+// ── START ──
+initMediaPipe();
+loadEx();
 </script>
 </body>
 </html>
