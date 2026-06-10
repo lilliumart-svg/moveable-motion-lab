@@ -12,78 +12,55 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0A0F1E;color:#F7F7F7;font-family:'Inter',sans-serif;min-height:100dvh}
 
-/* ════════ SCREEN 1: PREP / INSTRUCTIONS ════════ */
+/* ════════ SCREEN 1: PREP ════════ */
 #screen-prep{display:flex;flex-direction:column;min-height:100dvh;padding:20px 20px 32px;max-width:520px;margin:0 auto}
 .prep-top{display:flex;align-items:center;gap:12px;margin-bottom:20px}
 .btn-back{width:40px;height:40px;background:#1A2540;border:1px solid rgba(255,255,255,.1);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#8892A4;text-decoration:none;flex-shrink:0}
 .prep-counter{font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:600;color:#8892A4}
-
 .prep-hero{display:flex;align-items:center;gap:16px;margin-bottom:18px}
-.prep-figure{
-  width:130px;height:130px;flex-shrink:0;
-  background:linear-gradient(135deg,#111827,#1A2540);
-  border:1px solid rgba(78,205,196,.3);
-  border-radius:20px;
-  display:flex;align-items:center;justify-content:center;
-}
+.prep-figure{width:130px;height:130px;flex-shrink:0;background:linear-gradient(135deg,#111827,#1A2540);border:1px solid rgba(78,205,196,.3);border-radius:20px;display:flex;align-items:center;justify-content:center}
 .prep-figure svg{width:106px;height:106px}
 .prep-name{font-family:'Space Grotesk',sans-serif;font-size:1.25rem;font-weight:700;line-height:1.25;margin-bottom:6px}
 .prep-desc{font-size:.82rem;color:#8892A4;line-height:1.5}
-
-/* Rep selector — from old code */
 .rep-selector{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
 .rep-sel-label{font-size:.85rem;color:#8892A4}
 .rep-controls{display:flex;align-items:center;gap:16px}
 .rep-btn{width:38px;height:38px;border-radius:50%;background:#1A2540;border:1px solid rgba(255,255,255,.12);color:#F7F7F7;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .rep-btn:hover{background:rgba(78,205,196,.15);border-color:#4ECDC4}
 .rep-count{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;min-width:36px;text-align:center;color:#4ECDC4}
-
 .section-label{font-family:'Space Grotesk',sans-serif;font-size:.8rem;font-weight:600;color:#8892A4;margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em}
 .steps-prep{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;flex:1}
 .step-prep{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:#111827;border-radius:13px;border:1px solid rgba(255,255,255,.06)}
 .step-prep-n{width:24px;height:24px;flex-shrink:0;border-radius:50%;background:#4ECDC4;color:#0A0F1E;font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center}
 .step-prep-t{font-size:.88rem;line-height:1.5}
-
 .btn-start{width:100%;padding:17px;background:#4ECDC4;color:#0A0F1E;border-radius:14px;border:none;font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all .2s}
 .btn-start:hover{background:#5ED8CF;transform:translateY(-1px)}
 
-/* ════════ SCREEN 2: CAMERA FULLSCREEN ════════ */
+/* ════════ SCREEN 2: CAMERA ════════ */
 #screen-camera{display:none;position:fixed;inset:0;background:#000;overflow:hidden}
 #camera-feed{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
 #pose-canvas{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1);pointer-events:none;z-index:2}
 .ov-top{position:absolute;top:0;left:0;right:0;height:130px;background:linear-gradient(to bottom,rgba(0,0,0,.7),transparent);z-index:3;pointer-events:none}
-.ov-bottom{position:absolute;bottom:0;left:0;right:0;height:240px;background:linear-gradient(to top,rgba(0,0,0,.88) 40%,transparent);z-index:3;pointer-events:none}
-
+.ov-bottom{position:absolute;bottom:0;left:0;right:0;height:230px;background:linear-gradient(to top,rgba(0,0,0,.88) 40%,transparent);z-index:3;pointer-events:none}
 .cam-top{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:12px;padding:16px 20px}
-.cam-back{width:40px;height:40px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;backdrop-filter:blur(8px);cursor:pointer;border:none}
+.cam-back{width:40px;height:40px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;backdrop-filter:blur(8px);cursor:pointer}
 .cam-prog{flex:1;height:4px;background:rgba(255,255,255,.2);border-radius:2px;overflow:hidden}
 .cam-prog-fill{height:100%;background:#4ECDC4;border-radius:2px;transition:width .5s ease;width:0%}
 .cam-lbl{font-size:.78rem;color:rgba(255,255,255,.75);font-weight:600;white-space:nowrap}
-
 .ai-loading{position:absolute;inset:0;z-index:20;background:rgba(10,15,30,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
 .spinner{width:36px;height:36px;border:3px solid rgba(78,205,196,.2);border-top-color:#4ECDC4;border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .ai-loading p{font-family:'Space Grotesk',sans-serif;font-size:1rem;color:#4ECDC4}
 .ai-loading small{font-size:.78rem;color:#8892A4}
 
-/* Feedback bubble — from old code: emoji + text + hint */
-.fb-bubble{
-  position:absolute;top:74px;left:50%;transform:translateX(-50%);
-  z-index:10;max-width:88%;
-  display:flex;align-items:center;gap:10px;
-  background:rgba(0,0,0,.65);border:1px solid rgba(78,205,196,.5);
-  border-radius:18px;padding:10px 18px;
-  backdrop-filter:blur(10px);
-  transition:border-color .3s;
-}
+.fb-bubble{position:absolute;top:74px;left:50%;transform:translateX(-50%);z-index:10;max-width:88%;display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.65);border:1px solid rgba(78,205,196,.5);border-radius:18px;padding:10px 18px;backdrop-filter:blur(10px);transition:border-color .3s}
 .fb-bubble.good{border-color:rgba(107,203,119,.7)}
 .fb-bubble.bad{border-color:rgba(255,217,61,.55)}
 .fb-emoji{font-size:1.4rem;flex-shrink:0}
 .fb-text{font-size:.86rem;font-weight:600;line-height:1.3}
 .fb-hint{font-size:.7rem;color:rgba(255,255,255,.55);margin-top:2px}
 
-/* Rep progress ring — from old code */
-.rep-ring-wrap{position:absolute;bottom:110px;left:20px;z-index:10;width:92px;height:92px}
+.rep-ring-wrap{position:absolute;bottom:108px;left:20px;z-index:10;width:92px;height:92px}
 .rep-ring-wrap svg{transform:rotate(-90deg);width:100%;height:100%}
 .ring-bg{fill:rgba(0,0,0,.45);stroke:rgba(255,255,255,.15);stroke-width:5}
 .ring-fg{fill:none;stroke:#4ECDC4;stroke-width:5;stroke-linecap:round;stroke-dasharray:264;stroke-dashoffset:264;transition:stroke-dashoffset .4s ease}
@@ -91,32 +68,28 @@ body{background:#0A0F1E;color:#F7F7F7;font-family:'Inter',sans-serif;min-height:
 .ring-num{font-family:'Space Grotesk',sans-serif;font-size:1.7rem;font-weight:700;color:#fff;line-height:1}
 .ring-goal{font-size:.6rem;color:rgba(255,255,255,.55);margin-top:2px}
 
-/* Small figure hint — bottom right */
-.cam-figure{
-  position:absolute;bottom:110px;right:16px;z-index:10;
-  width:92px;height:92px;
-  background:rgba(0,0,0,.55);border:1px solid rgba(78,205,196,.35);
-  border-radius:16px;backdrop-filter:blur(8px);
-  display:flex;align-items:center;justify-content:center;
-}
+.cam-figure{position:absolute;bottom:108px;right:16px;z-index:10;width:92px;height:92px;background:rgba(0,0,0,.55);border:1px solid rgba(78,205,196,.35);border-radius:16px;backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center}
 .cam-figure svg{width:74px;height:74px}
 
-/* Bottom: exercise name + buttons */
 .cam-bottom{position:absolute;bottom:0;left:0;right:0;z-index:10;padding:0 20px 26px}
 .cam-ex-name{font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:10px;text-shadow:0 1px 8px rgba(0,0,0,.8)}
 .cam-btns{display:flex;gap:10px}
 .btn-cskip{flex:1;padding:14px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:12px;color:rgba(255,255,255,.7);font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;backdrop-filter:blur(8px)}
 .btn-cnext{flex:2;padding:14px;background:#4ECDC4;color:#0A0F1E;border-radius:12px;border:none;font-family:'Space Grotesk',sans-serif;font-size:.93rem;font-weight:700;cursor:pointer}
 
-/* ════════ SCREEN 3: RESULT ════════ */
-#screen-done{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;text-align:center;gap:18px;padding:40px 24px}
-.done-ring{width:110px;height:110px;border-radius:50%;background:linear-gradient(135deg,rgba(78,205,196,.15),rgba(255,217,61,.1));border:2px solid #4ECDC4;display:flex;align-items:center;justify-content:center;font-size:3rem}
-.done-title{font-family:'Space Grotesk',sans-serif;font-size:1.9rem;font-weight:700}
-.done-sub{color:#8892A4;font-size:.9rem;max-width:300px;line-height:1.5}
-.done-row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
-.done-stat{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 18px;text-align:center;min-width:88px}
-.done-val{font-family:'Space Grotesk',sans-serif;font-size:1.6rem;font-weight:700;color:#4ECDC4}
-.done-lbl{font-size:.7rem;color:#8892A4;margin-top:2px}
+/* ════════ SCREEN 3: RESULT + HERO ════════ */
+#screen-done{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;text-align:center;gap:16px;padding:36px 24px;max-width:520px;margin:0 auto}
+.done-title{font-family:'Space Grotesk',sans-serif;font-size:1.8rem;font-weight:700}
+.done-sub{color:#8892A4;font-size:.88rem;max-width:320px;line-height:1.5}
+.hero-card{background:linear-gradient(135deg,#1a1509,#0f0d04);border:2px solid #c9a227;border-radius:20px;padding:22px 20px;width:100%;max-width:320px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.hero-img{width:96px;height:96px;border-radius:50%;object-fit:cover;border:2px solid #c9a227}
+.hero-name{font-family:'Space Grotesk',sans-serif;font-size:1.15rem;font-weight:700;color:#FFD93D}
+.hero-title-lbl{font-size:.75rem;color:#c9a227;text-transform:uppercase;letter-spacing:.05em}
+.hero-quote{font-size:.85rem;color:rgba(255,255,255,.85);font-style:italic;line-height:1.55}
+.done-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.done-stat{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px 16px;text-align:center;min-width:84px}
+.done-val{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:#4ECDC4}
+.done-lbl{font-size:.68rem;color:#8892A4;margin-top:2px}
 .done-ach{background:rgba(255,217,61,.1);border:1px solid #FFD93D;border-radius:12px;padding:10px 20px;color:#FFD93D;font-size:.88rem;font-weight:600;display:none}
 .btn-done{width:100%;max-width:280px;padding:15px;background:#4ECDC4;color:#0A0F1E;border-radius:12px;border:none;font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer}
 </style>
@@ -131,19 +104,14 @@ body{background:#0A0F1E;color:#F7F7F7;font-family:'Inter',sans-serif;min-height:
     </a>
     <span class="prep-counter" id="prep-counter">Упражнение 1 из 5</span>
   </div>
-
   <div class="prep-hero">
-    <div class="prep-figure">
-      <svg id="prep-svg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"></svg>
-    </div>
+    <div class="prep-figure"><svg id="prep-svg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"></svg></div>
     <div>
       <div class="prep-name" id="prep-name">—</div>
       <div class="prep-desc" id="prep-desc">—</div>
     </div>
   </div>
-
-  <!-- Rep selector from old code -->
-  <div class="rep-selector">
+  <div class="rep-selector" id="rep-selector">
     <span class="rep-sel-label" id="rep-sel-label">Цель повторений</span>
     <div class="rep-controls">
       <button class="rep-btn" onclick="changeReps(-1)">−</button>
@@ -151,10 +119,8 @@ body{background:#0A0F1E;color:#F7F7F7;font-family:'Inter',sans-serif;min-height:
       <button class="rep-btn" onclick="changeReps(1)">+</button>
     </div>
   </div>
-
   <div class="section-label" id="howto-label">Как выполнять</div>
   <div class="steps-prep" id="prep-steps"></div>
-
   <button class="btn-start" onclick="startCameraScreen()" id="btn-start-cam">Начать с камерой →</button>
 </div>
 
@@ -164,13 +130,11 @@ body{background:#0A0F1E;color:#F7F7F7;font-family:'Inter',sans-serif;min-height:
   <canvas id="pose-canvas"></canvas>
   <div class="ov-top"></div>
   <div class="ov-bottom"></div>
-
   <div class="ai-loading" id="ai-loading">
     <div class="spinner"></div>
     <p>Загрузка AI…</p>
     <small>MediaPipe Pose Detection</small>
   </div>
-
   <div class="cam-top">
     <button class="cam-back" onclick="backToPrep()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15,18 9,12 15,6"/></svg>
@@ -178,8 +142,6 @@ body{background:#0A0F1E;color:#F7F7F7;font-family:'Inter',sans-serif;min-height:
     <div class="cam-prog"><div class="cam-prog-fill" id="cam-prog-fill"></div></div>
     <span class="cam-lbl" id="cam-lbl">1 / 5</span>
   </div>
-
-  <!-- Feedback bubble: emoji + text + hint (old code style) -->
   <div class="fb-bubble" id="fb-bubble">
     <span class="fb-emoji" id="fb-emoji">🔍</span>
     <div>
@@ -187,8 +149,6 @@ body{background:#0A0F1E;color:#F7F7F7;font-family:'Inter',sans-serif;min-height:
       <div class="fb-hint" id="fb-hint">Сядь так, чтобы было видно верх тела</div>
     </div>
   </div>
-
-  <!-- Rep ring (old code) -->
   <div class="rep-ring-wrap">
     <svg viewBox="0 0 92 92">
       <circle class="ring-bg" cx="46" cy="46" r="42"/>
@@ -199,12 +159,7 @@ body{background:#0A0F1E;color:#F7F7F7;font-family:'Inter',sans-serif;min-height:
       <span class="ring-goal" id="ring-goal">из 10</span>
     </div>
   </div>
-
-  <!-- Animated figure hint -->
-  <div class="cam-figure">
-    <svg id="cam-svg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"></svg>
-  </div>
-
+  <div class="cam-figure"><svg id="cam-svg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"></svg></div>
   <div class="cam-bottom">
     <div class="cam-ex-name" id="cam-ex-name">—</div>
     <div class="cam-btns">
@@ -216,9 +171,14 @@ body{background:#0A0F1E;color:#F7F7F7;font-family:'Inter',sans-serif;min-height:
 
 <!-- ════════ SCREEN 3: RESULT ════════ -->
 <div id="screen-done">
-  <div class="done-ring" id="done-emoji">🏆</div>
   <div class="done-title" id="done-title">Отлично!</div>
   <div class="done-sub" id="done-sub">Тренировка завершена</div>
+  <div class="hero-card" id="hero-card">
+    <img class="hero-img" id="hero-img" src="" alt=""/>
+    <div class="hero-name" id="hero-name"></div>
+    <div class="hero-title-lbl" id="hero-title"></div>
+    <div class="hero-quote" id="hero-quote"></div>
+  </div>
   <div class="done-row">
     <div class="done-stat"><div class="done-val" id="d-reps">0</div><div class="done-lbl" id="d-reps-lbl">повторений</div></div>
     <div class="done-stat"><div class="done-val" id="d-pts">0</div><div class="done-lbl" id="d-pts-lbl">очков</div></div>
@@ -228,9 +188,9 @@ body{background:#0A0F1E;color:#F7F7F7;font-family:'Inter',sans-serif;min-height:
   <button class="btn-done" onclick="window.location='index.html'" id="btn-done-home">На главную</button>
 </div>
 
-<script src="js/i18n.js"></script>
-<script src="js/storage.js"></script>
-<script src="js/exercises.js"></script>
+<script src="js/i18n.js?v=3"></script>
+<script src="js/storage.js?v=3"></script>
+<script src="js/exercises.js?v=3"></script>
 <script>
 const lang = getLang() || detectLang();
 setLang(lang);
@@ -240,25 +200,59 @@ const plan = getSessionPlan(cat, lang);
 let idx = 0;
 const t0 = Date.now();
 
-// Session state (old code style)
 let targetReps = 10;
 let repCount = 0, totalReps = 0, sessionPoints = 0;
 let accuracySum = 0, accuracyCount = 0;
-let repState = 'down', lastRepTime = 0;
+let repState = 'down', lastRepTime = 0, upSince = 0;
 let mpCamera = null, poseInstance = null, firstResult = false, cameraReady = false;
 
-// ── AUDIO (from old code) ──
+// ── ANTI-NOISE: pose must be stable before counting starts ──
+const VIS = 0.6;             // landmark visibility threshold (high = real, not guessed)
+const STABLE_MS = 2000;      // pose must be stable this long before counting
+const MIN_UP_MS = 500;       // movement must last at least this long to count
+let stableSince = 0;         // when required landmarks became continuously visible
+let armed = false;           // counting enabled only when armed
+let breathTimer = null;
+
+// ── AUDIO: real mp3 voice from old code (relative paths for GitHub Pages) ──
+let _currentAudio = null;
+function playAudio(src){
+  try{
+    if(_currentAudio){_currentAudio.pause();_currentAudio=null;}
+    const a=new Audio(src);
+    _currentAudio=a;
+    a.play().catch(()=>{});
+  }catch(e){}
+}
+const _exerciseAudio = { arm:'audio/arm_instruction.mp3', neck:'audio/neck_instruction.mp3', shoulder:'audio/shoulder_instruction.mp3' };
+function playExerciseAudio(ex){
+  const map = { arm_raise:'arm', elbow:'arm', circles:'arm', row:'arm', shrug:'shoulder', blade:'shoulder', neck_tilt:'neck', neck_turn:'neck', chin:'neck' };
+  const key = map[ex.hint];
+  if(key && _exerciseAudio[key]) playAudio(_exerciseAudio[key]);
+}
+function playRepAudio(n){
+  if(n===3) playAudio('audio/good.mp3');
+  else if(n===6) playAudio('audio/welldone.mp3');
+  else if(n===9) playAudio('audio/keepgoing.mp3');
+}
+
 const audioCtx = new (window.AudioContext||window.webkitAudioContext)();
 function playBeep(f,d,v){try{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.frequency.value=f||880;o.type='sine';g.gain.setValueAtTime(v||.3,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+(d||.12));o.start();o.stop(audioCtx.currentTime+(d||.12));}catch(e){}}
-function playVictory(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>playBeep(f,.2,.35),i*130));}
 function speakCount(n){const f=Math.min(880,330+(n-1)*40);playBeep(f*.75,.07,.2);setTimeout(()=>playBeep(f,.13,.3),80);}
 function unlockAudio(){if(audioCtx.state==='suspended')audioCtx.resume();}
 document.addEventListener('touchstart',unlockAudio);
 document.addEventListener('click',unlockAudio);
 
+// ── KAZAKH HEROES (from old code) ──
+const kazakhHeroes = [
+  { name:'Томирис', nameEn:'Tomyris', title:'Царица-воительница', titleEn:'Warrior Queen', quote:'Настоящий воин не сдаётся. Сегодня вы двигались — это победа.', quoteEn:'A true warrior never gives up. You moved today — that is a victory.', img:'heroes/tomyris.png' },
+  { name:'Алпамыс', nameEn:'Alpamys', title:'Легендарный батыр', titleEn:'Legendary Batyr', quote:'Сила не даётся. Она строится — одно движение за раз.', quoteEn:'Strength is not given. It is built — one movement at a time.', img:'heroes/alpamys.png' },
+  { name:'Коркыт', nameEn:'Korkyt', title:'Древний мудрец', titleEn:'Ancient Sage', quote:'Каждое движение начинается с покоя. Сегодня вы нашли свой ритм.', quoteEn:'Every movement begins in stillness. Today you found your rhythm.', img:'heroes/korkyt.png' },
+  { name:'Кабанбай батыр', nameEn:'Kabanbay Batyr', title:'Эпический герой', titleEn:'Epic Hero', quote:'Настоящая сила идёт изнутри. Сегодня вы это доказали.', quoteEn:'True strength comes from within. You proved it today.', img:'heroes/manas.png' },
+  { name:'Маншук', nameEn:'Manshuk', title:'Казахская героиня', titleEn:'Kazakh Heroine', quote:'Смелость — это не отсутствие страха. Это движение вперёд несмотря ни на что.', quoteEn:'Courage is not the absence of fear. It is moving forward despite everything.', img:'heroes/manshuk.png' },
+];
+
 // ── DETAILED SEATED FIGURE SVG ──
-// Base: seated person (side view) with wheelchair wheel hint
-// Arm is drawn in 3 segments: upper arm → forearm → hand (so wrist motion is visible)
 const FIG_BASE = `
   <circle cx="30" cy="14" r="6.5" stroke="#4ECDC4" stroke-width="2.5" fill="none"/>
   <line x1="30" y1="20.5" x2="30" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
@@ -268,312 +262,97 @@ const FIG_BASE = `
   <circle cx="33" cy="56" r="13" stroke="#4ECDC4" stroke-width="1.5" fill="none" opacity="0.25"/>`;
 
 const HINTS = {
-  // Wrist: forearm rests on thigh, only the HAND flaps up/down at the wrist
-  wrist: `${FIG_BASE}
-    <line x1="30" y1="28" x2="40" y2="40" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="40" y1="40" x2="52" y2="40" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <g stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round">
-      <line x1="52" y1="40" x2="60" y2="40"/>
-      <line x1="60" y1="40" x2="63" y2="38"/>
-      <animateTransform attributeName="transform" type="rotate" values="-35 52 40;35 52 40;-35 52 40" dur="1.6s" repeatCount="indefinite"/>
-    </g>
-    <circle cx="52" cy="40" r="2.5" fill="#FF6B6B"/>`,
-
-  // Arm raise: whole straight arm (shoulder→elbow→wrist→hand) rises from side to up
-  arm_raise: `${FIG_BASE}
-    <g stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round">
-      <line x1="30" y1="28" x2="42" y2="40"/>
-      <line x1="42" y1="40" x2="54" y2="50"/>
-      <line x1="54" y1="50" x2="59" y2="54"/>
-      <animateTransform attributeName="transform" type="rotate" values="0 30 28;-130 30 28;0 30 28" dur="2.2s" repeatCount="indefinite"/>
-    </g>
-    <circle cx="30" cy="28" r="2.5" fill="#FF6B6B"/>`,
-
-  // Elbow curl: upper arm fixed down, forearm+hand rotate at elbow
-  elbow: `${FIG_BASE}
-    <line x1="30" y1="28" x2="36" y2="42" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <g stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round">
-      <line x1="36" y1="42" x2="50" y2="46"/>
-      <line x1="50" y1="46" x2="54" y2="47"/>
-      <animateTransform attributeName="transform" type="rotate" values="0 36 42;-105 36 42;0 36 42" dur="1.8s" repeatCount="indefinite"/>
-    </g>
-    <circle cx="36" cy="42" r="2.5" fill="#FF6B6B"/>`,
-
-  // Shrug: shoulders (short lines) + head move up together
-  shrug: `
-    <line x1="30" y1="48" x2="50" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="50" y1="48" x2="50" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="50" y1="68" x2="57" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <circle cx="33" cy="56" r="13" stroke="#4ECDC4" stroke-width="1.5" fill="none" opacity="0.25"/>
-    <g>
-      <circle cx="30" cy="14" r="6.5" stroke="#4ECDC4" stroke-width="2.5" fill="none"/>
-      <line x1="30" y1="20.5" x2="30" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-      <g stroke="#FFD93D" stroke-width="3" stroke-linecap="round">
-        <line x1="22" y1="27" x2="30" y2="25"/>
-        <line x1="30" y1="25" x2="38" y2="27"/>
-      </g>
-      <animateTransform attributeName="transform" type="translate" values="0 0;0 -5;0 0;0 0" dur="1.8s" repeatCount="indefinite"/>
-    </g>`,
-
-  // Arm circles: straight arm out to side traces a small dashed circle
-  circles: `${FIG_BASE}
-    <circle cx="56" cy="28" r="7" stroke="#FFD93D" stroke-width="1.2" stroke-dasharray="3 3" fill="none" opacity="0.7"/>
-    <g stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round">
-      <line x1="30" y1="28" x2="49" y2="28"/>
-      <line x1="49" y1="28" x2="56" y2="28"/>
-      <animateTransform attributeName="transform" type="rotate" values="0 30 28;8 30 28;0 30 28;-8 30 28;0 30 28" dur="1.4s" repeatCount="indefinite"/>
-    </g>`,
-
-  // Row: both forearms push forward then pull back
-  row: `${FIG_BASE}
-    <g stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round">
-      <line x1="30" y1="30" x2="44" y2="30"/>
-      <line x1="44" y1="30" x2="56" y2="30"/>
-      <line x1="56" y1="30" x2="60" y2="30"/>
-      <animateTransform attributeName="transform" type="translate" values="0 0;-12 0;0 0" dur="1.6s" repeatCount="indefinite"/>
-    </g>
-    <circle cx="30" cy="30" r="2.5" fill="#FF6B6B"/>`,
-
-  // March: thigh+shin lift at hip
-  march: `
-    <circle cx="30" cy="14" r="6.5" stroke="#4ECDC4" stroke-width="2.5" fill="none"/>
-    <line x1="30" y1="20.5" x2="30" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="30" y1="28" x2="40" y2="40" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <circle cx="33" cy="56" r="13" stroke="#4ECDC4" stroke-width="1.5" fill="none" opacity="0.25"/>
-    <g stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round">
-      <line x1="30" y1="48" x2="50" y2="48"/>
-      <line x1="50" y1="48" x2="50" y2="68"/>
-      <line x1="50" y1="68" x2="57" y2="68"/>
-      <animateTransform attributeName="transform" type="rotate" values="0 30 48;-30 30 48;0 30 48" dur="1.5s" repeatCount="indefinite"/>
-    </g>
-    <circle cx="30" cy="48" r="2.5" fill="#FF6B6B"/>`,
-
-  // Leg extension: shin straightens at knee
-  leg_ext: `
-    <circle cx="30" cy="14" r="6.5" stroke="#4ECDC4" stroke-width="2.5" fill="none"/>
-    <line x1="30" y1="20.5" x2="30" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="30" y1="28" x2="40" y2="40" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="30" y1="48" x2="50" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <circle cx="33" cy="56" r="13" stroke="#4ECDC4" stroke-width="1.5" fill="none" opacity="0.25"/>
-    <g stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round">
-      <line x1="50" y1="48" x2="50" y2="68"/>
-      <line x1="50" y1="68" x2="57" y2="68"/>
-      <animateTransform attributeName="transform" type="rotate" values="0 50 48;-85 50 48;0 50 48" dur="2s" repeatCount="indefinite"/>
-    </g>
-    <circle cx="50" cy="48" r="2.5" fill="#FF6B6B"/>`,
-
-  // Ankle: foot rotates around ankle point
-  ankle: `${FIG_BASE.replace('<line x1="50" y1="68" x2="57" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>','')}
-    <g stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round">
-      <line x1="50" y1="68" x2="58" y2="68"/>
-      <animateTransform attributeName="transform" type="rotate" values="0 50 68;25 50 68;0 50 68;-20 50 68;0 50 68" dur="1.8s" repeatCount="indefinite"/>
-    </g>
-    <circle cx="50" cy="68" r="2.5" fill="#FF6B6B"/>`,
-
-  // Leg side: arrow showing outward motion
-  leg_side: `
-    <circle cx="30" cy="14" r="6.5" stroke="#4ECDC4" stroke-width="2.5" fill="none"/>
-    <line x1="30" y1="20.5" x2="30" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <circle cx="33" cy="56" r="13" stroke="#4ECDC4" stroke-width="1.5" fill="none" opacity="0.25"/>
-    <g stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round">
-      <line x1="30" y1="48" x2="48" y2="50"/>
-      <line x1="48" y1="50" x2="48" y2="68"/>
-      <animateTransform attributeName="transform" type="rotate" values="0 30 48;22 30 48;0 30 48" dur="1.7s" repeatCount="indefinite"/>
-    </g>
-    <circle cx="30" cy="48" r="2.5" fill="#FF6B6B"/>`,
-
-  // Toe taps: foot tip lifts, heel stays
-  toes: `${FIG_BASE.replace('<line x1="50" y1="68" x2="57" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>','')}
-    <g stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round">
-      <line x1="50" y1="68" x2="58" y2="68"/>
-      <animateTransform attributeName="transform" type="rotate" values="0 50 68;-28 50 68;0 50 68" dur="0.9s" repeatCount="indefinite"/>
-    </g>
-    <circle cx="50" cy="68" r="2.5" fill="#FF6B6B"/>`,
-
-  // Neck tilt: head tilts side to side at the neck
-  neck_tilt: `
-    <line x1="30" y1="20.5" x2="30" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="30" y1="28" x2="40" y2="40" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="30" y1="48" x2="50" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="50" y1="48" x2="50" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="50" y1="68" x2="57" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <circle cx="33" cy="56" r="13" stroke="#4ECDC4" stroke-width="1.5" fill="none" opacity="0.25"/>
-    <g>
-      <circle cx="30" cy="14" r="6.5" stroke="#FFD93D" stroke-width="2.5" fill="none"/>
-      <animateTransform attributeName="transform" type="rotate" values="0 30 21;24 30 21;0 30 21;-24 30 21;0 30 21" dur="2.6s" repeatCount="indefinite"/>
-    </g>
-    <circle cx="30" cy="21" r="2" fill="#FF6B6B"/>`,
-
-  // Neck turn: nose dot slides left-right on the head
-  neck_turn: `
-    <line x1="30" y1="20.5" x2="30" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="30" y1="48" x2="50" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="50" y1="48" x2="50" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="50" y1="68" x2="57" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <circle cx="33" cy="56" r="13" stroke="#4ECDC4" stroke-width="1.5" fill="none" opacity="0.25"/>
-    <circle cx="30" cy="14" r="6.5" stroke="#FFD93D" stroke-width="2.5" fill="none"/>
-    <circle cx="30" cy="14" r="1.8" fill="#FF6B6B">
-      <animate attributeName="cx" values="30;34.5;30;25.5;30" dur="2.4s" repeatCount="indefinite"/>
-    </circle>`,
-
-  // Chin to chest: head rotates down
-  chin: `
-    <line x1="30" y1="20.5" x2="30" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="30" y1="48" x2="50" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="50" y1="48" x2="50" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="50" y1="68" x2="57" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <circle cx="33" cy="56" r="13" stroke="#4ECDC4" stroke-width="1.5" fill="none" opacity="0.25"/>
-    <g>
-      <circle cx="30" cy="14" r="6.5" stroke="#FFD93D" stroke-width="2.5" fill="none"/>
-      <animateTransform attributeName="transform" type="rotate" values="0 30 21;32 30 21;32 30 21;0 30 21" dur="2.4s" repeatCount="indefinite"/>
-    </g>`,
-
-  // Blade squeeze: elbow pulls back
-  blade: `${FIG_BASE}
-    <g stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round">
-      <line x1="30" y1="30" x2="42" y2="32"/>
-      <line x1="42" y1="32" x2="50" y2="26"/>
-      <animateTransform attributeName="transform" type="rotate" values="0 30 30;38 30 30;0 30 30" dur="1.7s" repeatCount="indefinite"/>
-    </g>
-    <circle cx="30" cy="30" r="2.5" fill="#FF6B6B"/>`,
-
-  // Twist: shoulders line rotates over hips (top view feel via skew)
-  twist: `
-    <circle cx="30" cy="14" r="6.5" stroke="#4ECDC4" stroke-width="2.5" fill="none"/>
-    <line x1="30" y1="48" x2="50" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="50" y1="48" x2="50" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="50" y1="68" x2="57" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <circle cx="33" cy="56" r="13" stroke="#4ECDC4" stroke-width="1.5" fill="none" opacity="0.25"/>
-    <g>
-      <line x1="30" y1="20.5" x2="30" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-      <line x1="20" y1="27" x2="40" y2="27" stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round"/>
-      <animateTransform attributeName="transform" type="rotate" values="0 30 37;14 30 37;0 30 37;-14 30 37;0 30 37" dur="2.8s" repeatCount="indefinite"/>
-    </g>`,
-
-  // Cat-cow: spine path curves both ways
-  catcow: `
-    <circle cx="30" cy="14" r="6.5" stroke="#4ECDC4" stroke-width="2.5" fill="none"/>
-    <path d="M30 20.5 Q26 34 30 48" stroke="#FFD93D" stroke-width="2.5" fill="none" stroke-linecap="round">
-      <animate attributeName="d" values="M30 20.5 Q26 34 30 48;M30 20.5 Q36 34 30 48;M30 20.5 Q26 34 30 48" dur="2.4s" repeatCount="indefinite"/>
-    </path>
-    <line x1="30" y1="28" x2="42" y2="40" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="30" y1="48" x2="50" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="50" y1="48" x2="50" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="50" y1="68" x2="57" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <circle cx="33" cy="56" r="13" stroke="#4ECDC4" stroke-width="1.5" fill="none" opacity="0.25"/>`,
-
-  // Breathing: belly ellipse pulses
-  breathe: `${FIG_BASE}
-    <line x1="30" y1="28" x2="40" y2="40" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <ellipse cx="31" cy="38" rx="6" ry="9" stroke="#FFD93D" stroke-width="2" fill="none" opacity="0.8">
-      <animate attributeName="rx" values="6;10;6" dur="3s" repeatCount="indefinite"/>
-    </ellipse>`,
-
-  // Side bend: torso+head lean sideways at hip
-  side: `
-    <line x1="30" y1="48" x2="50" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="50" y1="48" x2="50" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="50" y1="68" x2="57" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <circle cx="33" cy="56" r="13" stroke="#4ECDC4" stroke-width="1.5" fill="none" opacity="0.25"/>
-    <g>
-      <circle cx="30" cy="14" r="6.5" stroke="#FFD93D" stroke-width="2.5" fill="none"/>
-      <line x1="30" y1="20.5" x2="30" y2="48" stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round"/>
-      <animateTransform attributeName="transform" type="rotate" values="0 30 48;-18 30 48;0 30 48;18 30 48;0 30 48" dur="3s" repeatCount="indefinite"/>
-    </g>`,
-
-  // Weight shift: whole figure slides left-right
-  shift: `<g>${FIG_BASE}
-    <line x1="30" y1="28" x2="40" y2="40" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
-    <animateTransform attributeName="transform" type="translate" values="0 0;-5 0;0 0;5 0;0 0" dur="3s" repeatCount="indefinite"/>
-  </g>`,
+  arm_raise:`${FIG_BASE}<g stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round"><line x1="30" y1="28" x2="42" y2="40"/><line x1="42" y1="40" x2="54" y2="50"/><line x1="54" y1="50" x2="59" y2="54"/><animateTransform attributeName="transform" type="rotate" values="0 30 28;-130 30 28;0 30 28" dur="2.2s" repeatCount="indefinite"/></g><circle cx="30" cy="28" r="2.5" fill="#FF6B6B"/>`,
+  elbow:`${FIG_BASE}<line x1="30" y1="28" x2="36" y2="42" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><g stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round"><line x1="36" y1="42" x2="50" y2="46"/><line x1="50" y1="46" x2="54" y2="47"/><animateTransform attributeName="transform" type="rotate" values="0 36 42;-105 36 42;0 36 42" dur="1.8s" repeatCount="indefinite"/></g><circle cx="36" cy="42" r="2.5" fill="#FF6B6B"/>`,
+  shrug:`<line x1="30" y1="48" x2="50" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="48" x2="50" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="68" x2="57" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><circle cx="33" cy="56" r="13" stroke="#4ECDC4" stroke-width="1.5" fill="none" opacity="0.25"/><g><circle cx="30" cy="14" r="6.5" stroke="#4ECDC4" stroke-width="2.5" fill="none"/><line x1="30" y1="20.5" x2="30" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><g stroke="#FFD93D" stroke-width="3" stroke-linecap="round"><line x1="22" y1="27" x2="30" y2="25"/><line x1="30" y1="25" x2="38" y2="27"/></g><animateTransform attributeName="transform" type="translate" values="0 0;0 -5;0 0;0 0" dur="1.8s" repeatCount="indefinite"/></g>`,
+  circles:`${FIG_BASE}<circle cx="56" cy="28" r="7" stroke="#FFD93D" stroke-width="1.2" stroke-dasharray="3 3" fill="none" opacity="0.7"/><g stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round"><line x1="30" y1="28" x2="49" y2="28"/><line x1="49" y1="28" x2="56" y2="28"/><animateTransform attributeName="transform" type="rotate" values="0 30 28;8 30 28;0 30 28;-8 30 28;0 30 28" dur="1.4s" repeatCount="indefinite"/></g>`,
+  row:`${FIG_BASE}<g stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round"><line x1="30" y1="30" x2="44" y2="30"/><line x1="44" y1="30" x2="56" y2="30"/><line x1="56" y1="30" x2="60" y2="30"/><animateTransform attributeName="transform" type="translate" values="0 0;-12 0;0 0" dur="1.6s" repeatCount="indefinite"/></g><circle cx="30" cy="30" r="2.5" fill="#FF6B6B"/>`,
+  march:`<circle cx="30" cy="14" r="6.5" stroke="#4ECDC4" stroke-width="2.5" fill="none"/><line x1="30" y1="20.5" x2="30" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="30" y1="28" x2="40" y2="40" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><circle cx="33" cy="56" r="13" stroke="#4ECDC4" stroke-width="1.5" fill="none" opacity="0.25"/><g stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round"><line x1="30" y1="48" x2="50" y2="48"/><line x1="50" y1="48" x2="50" y2="68"/><line x1="50" y1="68" x2="57" y2="68"/><animateTransform attributeName="transform" type="rotate" values="0 30 48;-30 30 48;0 30 48" dur="1.5s" repeatCount="indefinite"/></g><circle cx="30" cy="48" r="2.5" fill="#FF6B6B"/>`,
+  leg_ext:`<circle cx="30" cy="14" r="6.5" stroke="#4ECDC4" stroke-width="2.5" fill="none"/><line x1="30" y1="20.5" x2="30" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="30" y1="28" x2="40" y2="40" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="30" y1="48" x2="50" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><circle cx="33" cy="56" r="13" stroke="#4ECDC4" stroke-width="1.5" fill="none" opacity="0.25"/><g stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round"><line x1="50" y1="48" x2="50" y2="68"/><line x1="50" y1="68" x2="57" y2="68"/><animateTransform attributeName="transform" type="rotate" values="0 50 48;-85 50 48;0 50 48" dur="2s" repeatCount="indefinite"/></g><circle cx="50" cy="48" r="2.5" fill="#FF6B6B"/>`,
+  leg_side:`<circle cx="30" cy="14" r="6.5" stroke="#4ECDC4" stroke-width="2.5" fill="none"/><line x1="30" y1="20.5" x2="30" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><circle cx="33" cy="56" r="13" stroke="#4ECDC4" stroke-width="1.5" fill="none" opacity="0.25"/><g stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round"><line x1="30" y1="48" x2="48" y2="50"/><line x1="48" y1="50" x2="48" y2="68"/><animateTransform attributeName="transform" type="rotate" values="0 30 48;22 30 48;0 30 48" dur="1.7s" repeatCount="indefinite"/></g><circle cx="30" cy="48" r="2.5" fill="#FF6B6B"/>`,
+  neck_tilt:`<line x1="30" y1="20.5" x2="30" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="30" y1="28" x2="40" y2="40" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="30" y1="48" x2="50" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="48" x2="50" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="68" x2="57" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><circle cx="33" cy="56" r="13" stroke="#4ECDC4" stroke-width="1.5" fill="none" opacity="0.25"/><g><circle cx="30" cy="14" r="6.5" stroke="#FFD93D" stroke-width="2.5" fill="none"/><animateTransform attributeName="transform" type="rotate" values="0 30 21;24 30 21;0 30 21;-24 30 21;0 30 21" dur="2.6s" repeatCount="indefinite"/></g><circle cx="30" cy="21" r="2" fill="#FF6B6B"/>`,
+  neck_turn:`<line x1="30" y1="20.5" x2="30" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="30" y1="48" x2="50" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="48" x2="50" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="68" x2="57" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><circle cx="33" cy="56" r="13" stroke="#4ECDC4" stroke-width="1.5" fill="none" opacity="0.25"/><circle cx="30" cy="14" r="6.5" stroke="#FFD93D" stroke-width="2.5" fill="none"/><circle cx="30" cy="14" r="1.8" fill="#FF6B6B"><animate attributeName="cx" values="30;34.5;30;25.5;30" dur="2.4s" repeatCount="indefinite"/></circle>`,
+  chin:`<line x1="30" y1="20.5" x2="30" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="30" y1="48" x2="50" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="48" x2="50" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="68" x2="57" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><circle cx="33" cy="56" r="13" stroke="#4ECDC4" stroke-width="1.5" fill="none" opacity="0.25"/><g><circle cx="30" cy="14" r="6.5" stroke="#FFD93D" stroke-width="2.5" fill="none"/><animateTransform attributeName="transform" type="rotate" values="0 30 21;32 30 21;32 30 21;0 30 21" dur="2.4s" repeatCount="indefinite"/></g>`,
+  blade:`${FIG_BASE}<g stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round"><line x1="30" y1="30" x2="42" y2="32"/><line x1="42" y1="32" x2="50" y2="26"/><animateTransform attributeName="transform" type="rotate" values="0 30 30;38 30 30;0 30 30" dur="1.7s" repeatCount="indefinite"/></g><circle cx="30" cy="30" r="2.5" fill="#FF6B6B"/>`,
+  twist:`<circle cx="30" cy="14" r="6.5" stroke="#4ECDC4" stroke-width="2.5" fill="none"/><line x1="30" y1="48" x2="50" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="48" x2="50" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="68" x2="57" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><circle cx="33" cy="56" r="13" stroke="#4ECDC4" stroke-width="1.5" fill="none" opacity="0.25"/><g><line x1="30" y1="20.5" x2="30" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="20" y1="27" x2="40" y2="27" stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round"/><animateTransform attributeName="transform" type="rotate" values="0 30 37;14 30 37;0 30 37;-14 30 37;0 30 37" dur="2.8s" repeatCount="indefinite"/></g>`,
+  catcow:`<circle cx="30" cy="14" r="6.5" stroke="#4ECDC4" stroke-width="2.5" fill="none"/><path d="M30 20.5 Q26 34 30 48" stroke="#FFD93D" stroke-width="2.5" fill="none" stroke-linecap="round"><animate attributeName="d" values="M30 20.5 Q26 34 30 48;M30 20.5 Q36 34 30 48;M30 20.5 Q26 34 30 48" dur="2.4s" repeatCount="indefinite"/></path><line x1="30" y1="28" x2="42" y2="40" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="30" y1="48" x2="50" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="48" x2="50" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="68" x2="57" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><circle cx="33" cy="56" r="13" stroke="#4ECDC4" stroke-width="1.5" fill="none" opacity="0.25"/>`,
+  breathe:`${FIG_BASE}<line x1="30" y1="28" x2="40" y2="40" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="31" cy="38" rx="6" ry="9" stroke="#FFD93D" stroke-width="2" fill="none" opacity="0.8"><animate attributeName="rx" values="6;10;6" dur="3s" repeatCount="indefinite"/></ellipse>`,
+  side:`<line x1="30" y1="48" x2="50" y2="48" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="48" x2="50" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="68" x2="57" y2="68" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><circle cx="33" cy="56" r="13" stroke="#4ECDC4" stroke-width="1.5" fill="none" opacity="0.25"/><g><circle cx="30" cy="14" r="6.5" stroke="#FFD93D" stroke-width="2.5" fill="none"/><line x1="30" y1="20.5" x2="30" y2="48" stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round"/><animateTransform attributeName="transform" type="rotate" values="0 30 48;-18 30 48;0 30 48;18 30 48;0 30 48" dur="3s" repeatCount="indefinite"/></g>`,
+  shift:`<g>${FIG_BASE}<line x1="30" y1="28" x2="40" y2="40" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><animateTransform attributeName="transform" type="translate" values="0 0;-5 0;0 0;5 0;0 0" dur="3s" repeatCount="indefinite"/></g>`,
 };
-
 function getHintSVG(ex){ return HINTS[ex.hint] || HINTS.arm_raise; }
 
-// ── DETECTION ──
+// ── REQUIRED LANDMARKS per exercise (anti-noise core) ──
+// Counting only works when ALL of these are clearly visible (vis > 0.6)
+const REQUIRED = {
+  arm_raise:[12,14,24], elbow:[12,14,16], shrug:[0,11,12], circles:[12,14,24], row:[12,14,24], blade:[12,14,24],
+  march:[24,26], leg_ext:[24,26], leg_side:[24,26],
+  neck_tilt:[0,11,12], neck_turn:[0,11,12], chin:[0,11,12],
+  twist:[11,12,23,24], side:[11,12,23,24], shift:[11,12,23,24],
+};
+
+function requiredVisible(lm, ex){
+  const req = REQUIRED[ex.hint];
+  if(!req) return true;
+  return req.every(i => lm[i] && lm[i].visibility > VIS);
+}
+
+// ── DETECTION (thresholds from old Replit code) ──
 function angle3(a,b,c){const ab={x:a.x-b.x,y:a.y-b.y},cb={x:c.x-b.x,y:c.y-b.y};return Math.atan2(Math.abs(ab.x*cb.y-ab.y*cb.x),ab.x*cb.x+ab.y*cb.y)*180/Math.PI;}
 
 function detect(lm, ex){
   const T = (ru,en)=> lang==='en'?en:ru;
   switch(ex.hint){
-    case 'wrist': {
-      // wrist angle: elbow(14) - wrist(16) - index finger(20)
-      const e=lm[14],w=lm[16],f=lm[20];
-      if(!e||!w||!f||w.visibility<.4) return null;
-      const ang=angle3(e,w,f);
-      const flexed = ang<145;
-      return {repDone:flexed, good:flexed, accuracy:Math.min(1,(180-ang)/45),
-        text:flexed?T('Кисть согнута!','Wrist flexed!'):T('Согни кисть вверх','Bend your wrist up'),
-        hint:T('Двигается только кисть','Only the hand moves'), emoji:flexed?'✅':'✋'};
-    }
-    case 'arm_raise': {
-      const s=lm[12],e=lm[14],h=lm[24];
-      if(!s||!e||!h||s.visibility<.4||e.visibility<.4) return null;
-      const ang=angle3(h,s,e);
+    case 'arm_raise': case 'circles': {
+      const ang=angle3(lm[24],lm[12],lm[14]);
       return {repDone:ang>82, good:ang>60, accuracy:Math.min(1,ang/90),
         text:ang>82?T('Рука поднята!','Arm raised!'):T('Подними руку выше','Raise your arm higher'),
         hint:T('Локоть прямой','Keep elbow straight'), emoji:ang>82?'✅':'🙋'};
     }
     case 'elbow': {
-      const s=lm[12],e=lm[14],w=lm[16];
-      if(!s||!e||!w||e.visibility<.4) return null;
-      const ang=angle3(s,e,w);
-      const curled = ang<70;
+      const ang=angle3(lm[12],lm[14],lm[16]);
+      const curled=ang<70;
       return {repDone:curled, good:ang<110, accuracy:Math.min(1,(160-ang)/90),
-        text:curled?T('Отличное сгибание!','Great curl!'):T('Согни локоть сильнее','Bend your elbow more'),
+        text:curled?T('Отличное сгибание!','Great curl!'):T('Согни локоть к плечу','Bend elbow to shoulder'),
         hint:T('Плечо прижато к телу','Upper arm stays still'), emoji:curled?'✅':'💪'};
     }
     case 'shrug': {
-      const n=lm[0],l=lm[11],r=lm[12];
-      if(!n||!l||!r) return null;
-      const d=((l.y-n.y)+(r.y-n.y))/2;
+      const d=((lm[11].y-lm[0].y)+(lm[12].y-lm[0].y))/2;
       const up=d<.22;
       return {repDone:up, good:up, accuracy:Math.min(1,Math.max(0,1-(d-.15)/.15)),
         text:up?T('Плечи подняты!','Shoulders up!'):T('Подними плечи к ушам','Raise shoulders to ears'),
-        hint:T('Задержи на 2 секунды','Hold for 2 seconds'), emoji:up?'✅':'🤷'};
+        hint:T('Задержи на 2 секунды','Hold 2 seconds'), emoji:up?'✅':'🤷'};
+    }
+    case 'row': case 'blade': {
+      const ang=angle3(lm[24],lm[12],lm[14]);
+      return {repDone:ang>55, good:ang>35, accuracy:Math.min(1,ang/70),
+        text:ang>55?T('Хорошо!','Good!'):T('Руки на уровень плеч','Arms to shoulder level'),
+        hint:T('Своди лопатки','Squeeze shoulder blades'), emoji:ang>55?'✅':'🚣'};
     }
     case 'march': case 'leg_ext': case 'leg_side': {
-      const h=lm[24],k=lm[26];
-      if(!h||!k||h.visibility<.3||k.visibility<.3) return {nofb:true};
-      const lift=h.y-k.y;
+      const lift=lm[24].y-lm[26].y;
       return {repDone:lift>.04, good:lift>.02, accuracy:Math.min(1,Math.max(0,lift/.07)),
         text:lift>.04?T('Нога поднята!','Leg raised!'):T('Подними ногу','Lift your leg'),
         hint:T('Двигайся медленно','Move slowly'), emoji:lift>.04?'✅':'🦵'};
     }
     case 'neck_tilt': case 'neck_turn': case 'chin': {
-      const n=lm[0],l=lm[11],r=lm[12];
-      if(!n||!l||!r) return null;
-      const ratio=Math.abs(n.x-(l.x+r.x)/2)/Math.max(.01,Math.abs(l.x-r.x));
-      return {repDone:ratio>.2, good:ratio>.12, accuracy:Math.min(1,ratio/.22),
-        text:ratio>.2?T('Хорошее движение!','Good movement!'):T('Наклони / поверни голову','Tilt or turn your head'),
-        hint:T('Медленно, без рывков','Slow, no jerks'), emoji:ratio>.2?'✅':'↕️'};
+      const ratio=Math.abs(lm[0].x-(lm[11].x+lm[12].x)/2)/Math.max(.01,Math.abs(lm[11].x-lm[12].x));
+      return {repDone:ratio>.22, good:ratio>.12, accuracy:Math.min(1,ratio/.22),
+        text:ratio>.22?T('Хорошее движение!','Good movement!'):T('Наклони / поверни голову','Tilt or turn your head'),
+        hint:T('Медленно, без рывков','Slow, no jerks'), emoji:ratio>.22?'✅':'↕️'};
     }
     case 'twist': case 'side': case 'shift': {
-      const l=lm[11],r=lm[12],lh=lm[23],rh=lm[24];
-      if(!l||!r||!lh||!rh) return null;
-      const rot=Math.abs((l.x+r.x)/2-(lh.x+rh.x)/2);
+      const rot=Math.abs((lm[11].x+lm[12].x)/2-(lm[23].x+lm[24].x)/2);
       return {repDone:rot>.05, good:rot>.03, accuracy:Math.min(1,rot/.09),
         text:rot>.05?T('Отличное движение корпуса!','Great trunk movement!'):T('Двигай корпусом','Move your trunk'),
         hint:T('Держись за подлокотник','Hold the armrest'), emoji:rot>.05?'✅':'🔄'};
     }
-    case 'row': case 'blade': case 'circles': {
-      const s=lm[12],e=lm[14],h=lm[24];
-      if(!s||!e||!h||e.visibility<.4) return null;
-      const ang=angle3(h,s,e);
-      return {repDone:ang>55, good:ang>35, accuracy:Math.min(1,ang/70),
-        text:ang>55?T('Хорошо!','Good!'):T('Подними руки на уровень плеч','Bring arms to shoulder level'),
-        hint:T('Своди лопатки','Squeeze shoulder blades'), emoji:ang>55?'✅':'🚣'};
-    }
-    default: { // breathe etc — no rep detection, just presence
-      const visible=lm.filter(p=>p.visibility>.5).length;
-      return {nofb: visible<8, repDone:false, good:true, accuracy:.85,
-        text:T('Дыши спокойно','Breathe calmly'), hint:T('Следуй инструкции','Follow the steps'), emoji:'🫁'};
-    }
+    default: return null;
   }
 }
 
 // ── MEDIAPIPE ──
-const POSE_CONNECTIONS=[[11,12],[11,13],[13,15],[15,17],[15,19],[12,14],[14,16],[16,18],[16,20],[11,23],[12,24],[23,24],[23,25],[25,27],[24,26],[26,28],[0,11],[0,12]];
+const POSE_CONNECTIONS=[[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],[23,25],[25,27],[24,26],[26,28],[0,11],[0,12]];
 
 function onPoseResults(results){
   if(!firstResult){
@@ -582,11 +361,14 @@ function onPoseResults(results){
   }
   const canvas=document.getElementById('pose-canvas');
   const ctx=canvas.getContext('2d');
-  canvas.width=window.innerWidth;
-  canvas.height=window.innerHeight;
+  canvas.width=window.innerWidth; canvas.height=window.innerHeight;
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
+  const ex=plan[idx]; if(!ex) return;
+  if(ex.noAI) return; // breathing — timer mode, no AI
+
   if(!results.poseLandmarks){
+    stableSince=0; armed=false; repState='down';
     setFb('🔍', lang==='en'?'Finding your pose…':'Ищу позу…', lang==='en'?'Make sure your upper body is visible':'Убедись что видно верх тела','');
     return;
   }
@@ -594,22 +376,48 @@ function onPoseResults(results){
   drawConnectors(ctx,results.poseLandmarks,POSE_CONNECTIONS,{color:'rgba(78,205,196,0.65)',lineWidth:2.5});
   drawLandmarks(ctx,results.poseLandmarks,{color:'#4ECDC4',lineWidth:1,radius:3.5});
 
-  const ex=plan[idx]; if(!ex) return;
-  const res=detect(results.poseLandmarks,ex);
-  if(!res||res.nofb) return;
+  const lm=results.poseLandmarks;
+  const now=Date.now();
+
+  // ── ANTI-NOISE GATE 1: required landmarks must be clearly visible ──
+  if(!requiredVisible(lm, ex)){
+    stableSince=0; armed=false; repState='down';
+    setFb('👀', lang==='en'?'I can\'t see the moving body part':'Не вижу нужную часть тела',
+      lang==='en'?'Move back so the camera sees it':'Отодвинься, чтобы камера её видела','bad');
+    return;
+  }
+
+  // ── ANTI-NOISE GATE 2: pose must be stable for 2s before counting ──
+  if(!armed){
+    if(stableSince===0) stableSince=now;
+    const left=Math.ceil((STABLE_MS-(now-stableSince))/1000);
+    if(now-stableSince<STABLE_MS){
+      setFb('⏳', lang==='en'?`Get ready… ${left}`:`Приготовься… ${left}`,
+        lang==='en'?'Hold still for a moment':'Замри на секунду','');
+      return;
+    }
+    armed=true;
+    playBeep(660,.12,.3);
+    setFb('✅', lang==='en'?'Ready — begin!':'Поза найдена — начинай!',
+      lang==='en'?'Do the movement slowly':'Выполняй движение медленно','good');
+  }
+
+  const res=detect(lm,ex);
+  if(!res) return;
 
   accuracySum+=res.accuracy; accuracyCount++;
 
-  // Rep counting with debounce (old code)
-  if(res.repDone&&repState==='down') repState='up';
+  // ── ANTI-NOISE GATE 3: movement must last at least 500ms ──
+  if(res.repDone&&repState==='down'){ repState='up'; upSince=now; }
   if(!res.repDone&&repState==='up'){
     repState='down';
-    const now=Date.now();
-    if(now-lastRepTime>800){
+    const heldLongEnough = (now-upSince)>=MIN_UP_MS;
+    if(heldLongEnough && now-lastRepTime>800){
       lastRepTime=now;
       repCount++; totalReps++;
       sessionPoints+=Math.round(10*res.accuracy);
       speakCount(repCount);
+      playRepAudio(repCount);
       updateRing();
       if(repCount>=targetReps){ exerciseComplete(); return; }
       setFb('✅', `${lang==='en'?'Rep':'Повторение'} ${repCount}!`, `${repCount} / ${targetReps}`,'good');
@@ -659,10 +467,11 @@ function loadPrep(){
   document.getElementById('prep-desc').textContent=ex.displayDesc;
   document.getElementById('prep-svg').innerHTML=getHintSVG(ex);
   document.getElementById('rep-count').textContent=targetReps;
-  document.getElementById('rep-sel-label').textContent=lang==='en'?'Target reps':'Цель повторений';
+  document.getElementById('rep-sel-label').textContent=ex.noAI?(lang==='en'?'Duration':'Длительность'):(lang==='en'?'Target reps':'Цель повторений');
+  document.getElementById('rep-selector').style.display=ex.noAI?'none':'flex';
   document.getElementById('howto-label').textContent=lang==='en'?'How to do it':'Как выполнять';
   document.getElementById('prep-steps').innerHTML=(ex.steps||[]).map((s,i)=>`<div class="step-prep"><span class="step-prep-n">${i+1}</span><span class="step-prep-t">${s}</span></div>`).join('');
-  document.getElementById('btn-start-cam').textContent=lang==='en'?'Start with camera →':'Начать с камерой →';
+  document.getElementById('btn-start-cam').textContent=ex.noAI?(lang==='en'?'Start timer →':'Начать с таймером →'):(lang==='en'?'Start with camera →':'Начать с камерой →');
   document.getElementById('screen-prep').style.display='flex';
   document.getElementById('screen-camera').style.display='none';
 }
@@ -674,36 +483,57 @@ function changeReps(d){
 
 function startCameraScreen(){
   const ex=plan[idx];
-  repCount=0; repState='down'; firstResult=cameraReady;
+  repCount=0; repState='down'; stableSince=0; armed=false; upSince=0;
+  firstResult=cameraReady;
   document.getElementById('screen-prep').style.display='none';
   document.getElementById('screen-camera').style.display='block';
   document.getElementById('cam-ex-name').textContent=ex.displayName;
   document.getElementById('cam-prog-fill').style.width=`${(idx/plan.length)*100}%`;
   document.getElementById('cam-lbl').textContent=`${idx+1} / ${plan.length}`;
   document.getElementById('cam-svg').innerHTML=getHintSVG(ex);
-  document.getElementById('ring-num').textContent='0';
-  document.getElementById('ring-goal').textContent=`${lang==='en'?'of':'из'} ${targetReps}`;
-  document.getElementById('ring-fg').style.strokeDashoffset=264;
   document.getElementById('btn-cskip').textContent=lang==='en'?'Skip':'Пропустить';
   document.getElementById('btn-cnext').textContent=idx===plan.length-1?(lang==='en'?'Complete ✓':'Завершить ✓'):(lang==='en'?'Next →':'Следующее →');
   if(cameraReady) document.getElementById('ai-loading').style.display='none';
   if(!mpCamera) initMediaPipe();
+
+  playExerciseAudio(ex);
+
+  if(ex.noAI){
+    // Breathing — timer mode on the ring
+    const total=ex.timerSec||40;
+    let left=total;
+    document.getElementById('ring-num').textContent=left;
+    document.getElementById('ring-goal').textContent=lang==='en'?'sec':'сек';
+    document.getElementById('ring-fg').style.strokeDashoffset=264;
+    setFb('🫁', lang==='en'?'Breathe with the rhythm':'Дыши в ритме', lang==='en'?'In 4 — hold 2 — out 6':'Вдох 4 — пауза 2 — выдох 6','good');
+    clearInterval(breathTimer);
+    breathTimer=setInterval(()=>{
+      left--;
+      document.getElementById('ring-num').textContent=left;
+      document.getElementById('ring-fg').style.strokeDashoffset=264-((total-left)/total)*264;
+      if(left<=0){ clearInterval(breathTimer); exerciseComplete(); }
+    },1000);
+  } else {
+    document.getElementById('ring-num').textContent='0';
+    document.getElementById('ring-goal').textContent=`${lang==='en'?'of':'из'} ${targetReps}`;
+    document.getElementById('ring-fg').style.strokeDashoffset=264;
+  }
 }
 
 function backToPrep(){
+  clearInterval(breathTimer);
   document.getElementById('screen-camera').style.display='none';
   loadPrep();
 }
 
 function exerciseComplete(){
   playBeep(660,.15,.3);
-  setTimeout(()=>{
-    setFb('🎉', lang==='en'?'Exercise complete!':'Упражнение выполнено!', `${repCount} ${lang==='en'?'reps':'повторений'}`,'good');
-    setTimeout(nextEx, 1200);
-  },200);
+  setFb('🎉', lang==='en'?'Exercise complete!':'Упражнение выполнено!', `${repCount||'✓'}`,'good');
+  setTimeout(nextEx, 1200);
 }
 
 function nextEx(){
+  clearInterval(breathTimer);
   idx++;
   if(idx>=plan.length) finish();
   else { document.getElementById('screen-camera').style.display='none'; loadPrep(); }
@@ -713,7 +543,7 @@ function skipEx(){nextEx();}
 function finish(){
   const dMin=Math.max(1,Math.round((Date.now()-t0)/60000));
   const avg=accuracyCount>0?Math.round((accuracySum/accuracyCount)*100):0;
-  playVictory();
+  playAudio('audio/finish.mp3');
   saveSession({category:cat,title:plan[0]?.displayName||cat,durationMin:dMin,exercises:plan.map(e=>e.id)});
   const{new:na}=checkAchievements();
   if(mpCamera){mpCamera.stop();mpCamera=null;}
@@ -725,18 +555,25 @@ function finish(){
   document.getElementById('screen-prep').style.display='none';
   document.getElementById('screen-done').style.display='flex';
 
+  // Kazakh hero (from old code)
+  const hero=kazakhHeroes[Math.floor(Math.random()*kazakhHeroes.length)];
+  document.getElementById('hero-img').src=hero.img;
+  document.getElementById('hero-img').alt=lang==='en'?hero.nameEn:hero.name;
+  document.getElementById('hero-name').textContent=lang==='en'?hero.nameEn:hero.name;
+  document.getElementById('hero-title').textContent=lang==='en'?hero.titleEn:hero.title;
+  document.getElementById('hero-quote').textContent='«'+(lang==='en'?hero.quoteEn:hero.quote)+'»';
+
   const pts=sessionPoints||totalReps*10;
   document.getElementById('d-reps').textContent=totalReps;
   document.getElementById('d-pts').textContent=pts;
-  document.getElementById('d-acc').textContent=avg+'%';
+  document.getElementById('d-acc').textContent=(accuracyCount>0?avg+'%':'—');
   document.getElementById('d-reps-lbl').textContent=lang==='en'?'reps':'повторений';
   document.getElementById('d-pts-lbl').textContent=lang==='en'?'points':'очков';
   document.getElementById('d-acc-lbl').textContent=lang==='en'?'accuracy':'точность';
-  document.getElementById('done-emoji').textContent=avg>=80?'🏆':avg>=60?'⭐':'💪';
-  document.getElementById('done-title').textContent=userName?`${userName}!`:(lang==='en'?'Champion!':'Чемпион!');
+  document.getElementById('done-title').textContent=userName?(userName+'! 🏆'):(lang==='en'?'Champion! 🏆':'Чемпион! 🏆');
   document.getElementById('done-sub').textContent=lang==='en'
-    ? `You completed ${totalReps} reps across ${plan.length} exercises in ${dMin} min. Next time try a few more!`
-    : `Ты выполнила ${totalReps} повторений в ${plan.length} упражнениях за ${dMin} мин. В следующий раз попробуй чуть больше!`;
+    ? `You completed ${plan.length} exercises in ${dMin} min.`
+    : `Тренировка завершена: ${plan.length} упражнений за ${dMin} мин.`;
   document.getElementById('btn-done-home').textContent=lang==='en'?'Home':'На главную';
 
   if(na.length){const names={first_step:'👣 Первый шаг!',week_warrior:'🏆 Воин недели!',mover:'🚀 В движении!',dedicated:'💎 Преданность!'};const el=document.getElementById('done-ach');el.textContent=names[na[0]]||'🏅 Новое достижение!';el.style.display='block';}
