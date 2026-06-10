@@ -7,97 +7,224 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="css/main.css"/>
 
-  <!-- MediaPipe Pose — настоящее компьютерное зрение -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
 
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{background:#0A0F1E;color:#F7F7F7;font-family:'Inter',sans-serif;min-height:100vh}
+    body{background:#000;color:#F7F7F7;font-family:'Inter',sans-serif;min-height:100dvh;overflow:hidden}
 
-    .top-bar{display:flex;align-items:center;gap:12px;padding:14px 16px;background:#0A0F1E;position:sticky;top:0;z-index:50}
-    .btn-back{width:38px;height:38px;background:#1A2540;border:1px solid rgba(255,255,255,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#8892A4;text-decoration:none;flex-shrink:0}
-    .prog-bar{flex:1;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+    /* FULLSCREEN CAMERA */
+    #camera-feed{
+      position:fixed;inset:0;
+      width:100%;height:100dvh;
+      object-fit:cover;
+      transform:scaleX(-1);
+      display:block;
+    }
+    #pose-canvas{
+      position:fixed;inset:0;
+      width:100%;height:100dvh;
+      transform:scaleX(-1);
+      pointer-events:none;
+      z-index:2;
+    }
+
+    /* Dark gradient overlays */
+    .overlay-top{
+      position:fixed;top:0;left:0;right:0;height:160px;
+      background:linear-gradient(to bottom,rgba(0,0,0,.75),transparent);
+      z-index:3;pointer-events:none;
+    }
+    .overlay-bottom{
+      position:fixed;bottom:0;left:0;right:0;height:55%;
+      background:linear-gradient(to top,rgba(0,0,0,.92) 60%,transparent);
+      z-index:3;pointer-events:none;
+    }
+
+    /* TOP BAR */
+    .top-bar{
+      position:fixed;top:0;left:0;right:0;z-index:10;
+      display:flex;align-items:center;gap:12px;
+      padding:16px 20px;
+    }
+    .btn-back{
+      width:40px;height:40px;
+      background:rgba(255,255,255,.15);
+      border:1px solid rgba(255,255,255,.2);
+      border-radius:12px;
+      display:flex;align-items:center;justify-content:center;
+      color:#fff;text-decoration:none;flex-shrink:0;
+      backdrop-filter:blur(8px);
+    }
+    .prog-bar{flex:1;height:4px;background:rgba(255,255,255,.2);border-radius:2px;overflow:hidden}
     .prog-fill{height:100%;background:#4ECDC4;border-radius:2px;transition:width .5s ease;width:0%}
-    .prog-lbl{font-size:.78rem;color:#8892A4;font-weight:600;white-space:nowrap}
+    .prog-lbl{font-size:.78rem;color:rgba(255,255,255,.7);font-weight:600;white-space:nowrap}
 
-    /* TOP ROW */
-    .top-row{display:flex;gap:10px;padding:10px 16px;align-items:flex-start}
-
-    /* Camera */
-    .camera-pip{width:100px;height:134px;border-radius:14px;overflow:hidden;border:2px solid rgba(78,205,196,.35);background:#060A14;position:relative;flex-shrink:0}
-    #camera-feed{width:100%;height:100%;object-fit:cover;transform:scaleX(-1);display:block}
-    #pose-canvas{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1)}
-    .cam-badge{position:absolute;bottom:4px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:3px;font-size:.56rem;font-weight:700;color:#fff;background:rgba(0,0,0,.6);padding:3px 0}
-    .cam-dot{width:5px;height:5px;border-radius:50%;background:#FF6B6B;flex-shrink:0;transition:background .3s}
-    .cam-dot.on{background:#6BCB77;animation:blink 1.5s infinite}
-    .cam-dot.tracking{background:#4ECDC4;animation:none}
-    @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-    .cam-no{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:4px;font-size:.6rem;color:#4A5568;text-align:center;padding:8px}
-    .cam-no svg{width:24px;height:24px;stroke:#4A5568}
-
-    /* Loading overlay */
-    .cam-loading{position:absolute;inset:0;background:rgba(6,10,20,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:.6rem;color:#4ECDC4;text-align:center;padding:8px}
-    .spinner{width:20px;height:20px;border:2px solid rgba(78,205,196,.2);border-top-color:#4ECDC4;border-radius:50%;animation:spin .8s linear infinite}
+    /* AI loading overlay */
+    .ai-loading{
+      position:fixed;inset:0;z-index:20;
+      background:rgba(10,15,30,.9);
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:16px;
+    }
+    .spinner{width:40px;height:40px;border:3px solid rgba(78,205,196,.2);border-top-color:#4ECDC4;border-radius:50%;animation:spin .8s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
+    .ai-loading p{font-family:'Space Grotesk',sans-serif;font-size:1rem;color:#4ECDC4}
+    .ai-loading small{font-size:.8rem;color:#8892A4}
 
-    /* SVG hint */
-    .svg-hint{width:78px;height:134px;background:#111827;border:1px solid rgba(78,205,196,.2);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px;flex-shrink:0}
-    .svg-hint svg{width:54px;height:54px}
-    .svg-hint-lbl{font-size:.56rem;color:#8892A4;text-align:center;line-height:1.3}
+    /* No camera */
+    .cam-no{
+      position:fixed;inset:0;z-index:5;
+      background:#060A14;
+      display:none;flex-direction:column;
+      align-items:center;justify-content:center;gap:12px;
+      color:#4A5568;
+    }
+    .cam-no svg{width:48px;height:48px;stroke:#4A5568}
+    .cam-no p{font-size:.9rem}
 
-    /* Metrics */
-    .metrics-col{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0}
-    .metric-chip{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 8px;text-align:center}
-    .metric-chip.accent{border-color:#4ECDC4;background:rgba(78,205,196,.08)}
+    /* CV FEEDBACK BUBBLE — top center */
+    .cv-bubble{
+      position:fixed;top:80px;left:50%;transform:translateX(-50%);
+      z-index:10;
+      background:rgba(0,0,0,.6);
+      border:1px solid rgba(78,205,196,.5);
+      border-radius:20px;
+      padding:8px 20px;
+      font-size:.82rem;font-weight:600;color:#4ECDC4;
+      white-space:nowrap;
+      backdrop-filter:blur(8px);
+      transition:all .3s;
+      opacity:0;
+    }
+    .cv-bubble.show{opacity:1}
+    .cv-bubble.good{border-color:rgba(107,203,119,.6);color:#6BCB77}
+    .cv-bubble.warn{border-color:rgba(255,107,107,.5);color:#FF6B6B}
+
+    /* BOTTOM PANEL */
+    .bottom-panel{
+      position:fixed;bottom:0;left:0;right:0;
+      z-index:10;
+      padding:16px 20px 32px;
+    }
+
+    /* Metrics row */
+    .metrics-row{
+      display:flex;gap:10px;margin-bottom:12px;
+    }
+    .metric-chip{
+      flex:1;background:rgba(0,0,0,.5);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;padding:10px 8px;text-align:center;
+      backdrop-filter:blur(8px);
+    }
+    .metric-chip.accent{border-color:rgba(78,205,196,.5);background:rgba(78,205,196,.12)}
     .metric-num{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:#4ECDC4;line-height:1}
-    .metric-lbl{font-size:.62rem;color:#8892A4;margin-top:2px}
+    .metric-lbl{font-size:.62rem;color:rgba(255,255,255,.5);margin-top:2px}
+    .rep-chip .metric-num{color:#FFD93D}
+    .rep-chip{border-color:rgba(255,217,61,.4)!important;background:rgba(255,217,61,.08)!important}
 
-    /* Rep counter — live from CV */
-    .rep-live{background:#111827;border:1px solid rgba(255,217,61,.3);border-radius:12px;padding:10px 8px;text-align:center}
-    .rep-live-num{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:#FFD93D;line-height:1}
-    .rep-live-lbl{font-size:.62rem;color:#8892A4;margin-top:2px}
+    /* Accuracy */
+    .acc-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+    .acc-lbl{font-size:.65rem;color:rgba(255,255,255,.4);white-space:nowrap}
+    .acc-bar{flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+    .acc-fill{height:100%;background:#4ECDC4;border-radius:2px;transition:width .5s ease;width:0%}
+    .acc-pct{font-size:.65rem;color:#4ECDC4;font-weight:700;min-width:28px;text-align:right}
 
-    /* CV feedback bar */
-    .cv-bar{margin:4px 16px 0;padding:7px 12px;background:rgba(78,205,196,.08);border:1px solid rgba(78,205,196,.2);border-radius:10px;font-size:.72rem;font-weight:600;color:#4ECDC4;text-align:center;min-height:30px;transition:all .3s}
-    .cv-bar.good{background:rgba(107,203,119,.1);border-color:rgba(107,203,119,.4);color:#6BCB77}
-    .cv-bar.warn{background:rgba(255,107,107,.1);border-color:rgba(255,107,107,.4);color:#FF6B6B}
+    /* Exercise name + desc */
+    .ex-name{
+      font-family:'Space Grotesk',sans-serif;
+      font-size:1.15rem;font-weight:700;
+      margin-bottom:3px;
+    }
+    .ex-desc{font-size:.78rem;color:rgba(255,255,255,.55);margin-bottom:12px;line-height:1.4}
 
-    /* Exercise info */
-    .ex-info{padding:12px 16px 0}
-    .ex-name{font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:4px}
-    .ex-desc{font-size:.8rem;color:#8892A4;line-height:1.5;margin-bottom:14px}
-    .steps{display:flex;flex-direction:column}
-    .step{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+    /* Steps — compact */
+    .steps{display:flex;flex-direction:column;gap:0;margin-bottom:14px}
+    .step{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)}
     .step:last-child{border-bottom:none}
-    .step-n{width:22px;height:22px;flex-shrink:0;border-radius:50%;background:rgba(78,205,196,.1);border:1px solid #4ECDC4;font-size:.68rem;font-weight:700;color:#4ECDC4;display:flex;align-items:center;justify-content:center;transition:all .3s}
-    .step-n.done{background:#4ECDC4;color:#0A0F1E}
-    .step-t{font-size:.88rem;line-height:1.55}
+    .step-n{width:18px;height:18px;flex-shrink:0;border-radius:50%;background:rgba(78,205,196,.15);border:1px solid rgba(78,205,196,.5);font-size:.6rem;font-weight:700;color:#4ECDC4;display:flex;align-items:center;justify-content:center}
+    .step-t{font-size:.78rem;line-height:1.5;color:rgba(255,255,255,.8)}
+
+    /* SVG hint — bottom right corner */
+    .svg-hint{
+      position:fixed;bottom:110px;right:16px;z-index:10;
+      width:88px;height:88px;
+      background:rgba(0,0,0,.6);
+      border:1px solid rgba(78,205,196,.3);
+      border-radius:16px;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:3px;padding:6px;
+      backdrop-filter:blur(8px);
+    }
+    .svg-hint svg{width:52px;height:52px}
+    .svg-hint-lbl{font-size:.52rem;color:rgba(255,255,255,.4);text-align:center}
 
     /* Buttons */
-    .btns{display:flex;gap:10px;padding:16px;position:sticky;bottom:0;background:linear-gradient(to top,#0A0F1E 80%,transparent)}
-    .btn-skip{flex:1;padding:14px;background:#1A2540;border:1px solid rgba(255,255,255,.08);border-radius:12px;color:#8892A4;font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s}
+    .btns{display:flex;gap:10px}
+    .btn-skip{
+      flex:1;padding:14px;
+      background:rgba(255,255,255,.1);
+      border:1px solid rgba(255,255,255,.15);
+      border-radius:12px;color:rgba(255,255,255,.6);
+      font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:600;
+      cursor:pointer;transition:all .2s;
+      backdrop-filter:blur(8px);
+    }
     .btn-skip:hover{border-color:#4ECDC4;color:#4ECDC4}
-    .btn-next{flex:2;padding:14px;background:#4ECDC4;color:#0A0F1E;border-radius:12px;border:none;font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:all .2s}
+    .btn-next{
+      flex:2;padding:14px;
+      background:#4ECDC4;color:#0A0F1E;
+      border-radius:12px;border:none;
+      font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700;
+      cursor:pointer;transition:all .2s;
+    }
     .btn-next:hover{background:#5ED8CF}
 
-    /* Done */
-    .done{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;gap:18px;padding:40px 24px}
+    /* DONE SCREEN */
+    .done{
+      position:fixed;inset:0;z-index:30;
+      display:none;flex-direction:column;
+      align-items:center;justify-content:center;
+      text-align:center;gap:18px;padding:40px 24px;
+      background:#0A0F1E;
+    }
     .done-icon{font-size:4.5rem}
     .done-title{font-family:'Space Grotesk',sans-serif;font-size:1.9rem;font-weight:700}
     .done-sub{color:#8892A4;font-size:.9rem}
-    .done-row{display:flex;gap:20px}
+    .done-row{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+    .done-stat{text-align:center}
     .done-val{font-family:'Space Grotesk',sans-serif;font-size:1.7rem;font-weight:700;color:#4ECDC4}
-    .done-lbl{font-size:.75rem;color:#8892A4;margin-top:2px}
+    .done-lbl{font-size:.72rem;color:#8892A4;margin-top:2px}
     .done-ach{background:rgba(255,217,61,.1);border:1px solid #FFD93D;border-radius:12px;padding:10px 20px;color:#FFD93D;font-size:.88rem;font-weight:600;display:none}
     .btn-home{width:100%;max-width:280px;padding:15px;background:#4ECDC4;color:#0A0F1E;border-radius:12px;border:none;font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer}
   </style>
 </head>
 <body>
 
+<!-- FULLSCREEN CAMERA -->
+<video id="camera-feed" autoplay muted playsinline></video>
+<canvas id="pose-canvas"></canvas>
+<div class="overlay-top"></div>
+<div class="overlay-bottom"></div>
+
+<!-- AI LOADING -->
+<div class="ai-loading" id="ai-loading">
+  <div class="spinner"></div>
+  <p>Загрузка AI…</p>
+  <small>MediaPipe Pose Detection</small>
+</div>
+
+<!-- NO CAMERA -->
+<div class="cam-no" id="cam-no">
+  <svg viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke-width="2"/><circle cx="12" cy="13" r="4" stroke-width="2"/></svg>
+  <p>Разрешите доступ к камере</p>
+</div>
+
+<!-- TOP BAR -->
 <div class="top-bar">
   <a href="index.html" class="btn-back">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15,18 9,12 15,6"/></svg>
@@ -106,71 +233,58 @@
   <span class="prog-lbl" id="prog-lbl">1 / 5</span>
 </div>
 
-<div class="top-row">
-  <!-- Camera PiP -->
-  <div class="camera-pip">
-    <video id="camera-feed" autoplay muted playsinline></video>
-    <canvas id="pose-canvas"></canvas>
-    <div class="cam-loading" id="cam-loading">
-      <div class="spinner"></div>
-      <span>CV загрузка…</span>
-    </div>
-    <div class="cam-badge">
-      <div class="cam-dot" id="cam-dot"></div>
-      <span id="cam-lbl">Камера</span>
-    </div>
-    <div class="cam-no" id="cam-no">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke-width="2"/><circle cx="12" cy="13" r="4" stroke-width="2"/></svg>
-      <span>Нет камеры</span>
-    </div>
-  </div>
+<!-- CV FEEDBACK -->
+<div class="cv-bubble" id="cv-bubble"></div>
 
-  <!-- SVG hint -->
-  <div class="svg-hint">
-    <svg id="hint-svg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"></svg>
-    <span class="svg-hint-lbl" id="hint-lbl">Как делать</span>
-  </div>
+<!-- SVG HINT bottom right -->
+<div class="svg-hint">
+  <svg id="hint-svg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"></svg>
+  <span class="svg-hint-lbl" id="hint-lbl">Как делать</span>
+</div>
 
-  <!-- Metrics + live rep counter -->
-  <div class="metrics-col">
+<!-- BOTTOM PANEL -->
+<div class="bottom-panel">
+  <div class="metrics-row">
     <div class="metric-chip accent">
       <div class="metric-num" id="m-val">10</div>
       <div class="metric-lbl" id="m-lbl">повт.</div>
     </div>
     <div class="metric-chip">
       <div class="metric-num" id="m-sets">3</div>
-      <div class="metric-lbl" id="m-sets-lbl">подх.</div>
+      <div class="metric-lbl">подх.</div>
     </div>
-    <div class="rep-live">
-      <div class="rep-live-num" id="rep-live">0</div>
-      <div class="rep-live-lbl" id="rep-live-lbl">CV счёт</div>
+    <div class="metric-chip rep-chip">
+      <div class="metric-num" id="rep-live">0</div>
+      <div class="metric-lbl">CV счёт</div>
     </div>
   </div>
-</div>
 
-<!-- CV feedback -->
-<div class="cv-bar" id="cv-bar">Инициализация компьютерного зрения…</div>
+  <div class="acc-row">
+    <span class="acc-lbl">Точность</span>
+    <div class="acc-bar"><div class="acc-fill" id="acc-fill"></div></div>
+    <span class="acc-pct" id="acc-pct">—</span>
+  </div>
 
-<!-- Exercise info -->
-<div class="ex-info" id="ex-info">
   <div class="ex-name" id="ex-name">—</div>
   <div class="ex-desc" id="ex-desc">—</div>
   <div class="steps" id="steps"></div>
+
+  <div class="btns">
+    <button class="btn-skip" onclick="skipEx()">Пропустить</button>
+    <button class="btn-next" id="btn-next" onclick="nextEx()">Следующее →</button>
+  </div>
 </div>
 
-<div class="btns">
-  <button class="btn-skip" onclick="skipEx()">Пропустить</button>
-  <button class="btn-next" id="btn-next" onclick="nextEx()">Следующее →</button>
-</div>
-
+<!-- DONE -->
 <div class="done" id="done">
   <div class="done-icon">🎉</div>
-  <div class="done-title">Отлично!</div>
-  <div class="done-sub" id="done-sub">Тренировка завершена</div>
+  <div class="done-title" id="done-title">Отлично!</div>
+  <div class="done-sub">Тренировка завершена</div>
   <div class="done-row">
-    <div><div class="done-val" id="d-cnt">0</div><div class="done-lbl">упражнений</div></div>
-    <div><div class="done-val" id="d-min">0</div><div class="done-lbl">минут</div></div>
-    <div><div class="done-val" id="d-reps">0</div><div class="done-lbl">CV повторений</div></div>
+    <div class="done-stat"><div class="done-val" id="d-cnt">0</div><div class="done-lbl">упражнений</div></div>
+    <div class="done-stat"><div class="done-val" id="d-min">0</div><div class="done-lbl">минут</div></div>
+    <div class="done-stat"><div class="done-val" id="d-reps">0</div><div class="done-lbl">CV повторений</div></div>
+    <div class="done-stat"><div class="done-val" id="d-acc">—</div><div class="done-lbl">точность</div></div>
   </div>
   <div class="done-ach" id="done-ach"></div>
   <button class="btn-home" onclick="window.location='index.html'">На главную</button>
@@ -186,10 +300,31 @@ const cat = localStorage.getItem('mv_session_cat') || 'arms';
 const plan = getSessionPlan(cat, lang);
 let idx = 0;
 const t0 = Date.now();
-let totalCvReps = 0;
+let accuracySum=0, accuracyCount=0;
+let repCount=0, totalReps=0;
+let repState='down', lastRepTime=0;
+let mpCamera=null;
+
+// ── AUDIO ──
+const audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+function playBeep(freq,dur,vol){
+  try{
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    o.connect(g);g.connect(audioCtx.destination);
+    o.frequency.value=freq||880;o.type='sine';
+    g.gain.setValueAtTime(vol||0.3,audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+(dur||0.12));
+    o.start();o.stop(audioCtx.currentTime+(dur||0.12));
+  }catch(e){}
+}
+function playVictory(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>playBeep(f,.2,.35),i*130));}
+function speakCount(n){const f=Math.min(880,330+(n-1)*40);playBeep(f*.75,.07,.2);setTimeout(()=>playBeep(f,.13,.3),80);}
+function unlockAudio(){if(audioCtx.state==='suspended')audioCtx.resume();document.removeEventListener('touchstart',unlockAudio);document.removeEventListener('click',unlockAudio);}
+document.addEventListener('touchstart',unlockAudio);
+document.addEventListener('click',unlockAudio);
 
 // ── SVG HINTS ──
-const SVG = {
+const SVG={
   arms:`<g stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round" fill="none"><circle cx="40" cy="12" r="7"/><line x1="40" y1="19" x2="40" y2="46"/><line x1="40" y1="46" x2="30" y2="64"/><line x1="40" y1="46" x2="50" y2="64"/><line x1="40" y1="30" x2="22" y2="42"/><line x1="40" y1="30" x2="58" y2="42"><animateTransform attributeName="transform" type="rotate" values="0 40 30;-38 40 30;0 40 30" dur="1.5s" repeatCount="indefinite"/></line></g>`,
   legs:`<g stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round" fill="none"><circle cx="40" cy="12" r="7"/><line x1="40" y1="19" x2="40" y2="46"/><line x1="40" y1="30" x2="26" y2="40"/><line x1="40" y1="30" x2="54" y2="40"/><line x1="40" y1="46" x2="33" y2="60"/><line x1="33" y1="60" x2="28" y2="74"><animateTransform attributeName="transform" type="rotate" values="0 33 60;38 33 60;0 33 60" dur="1.6s" repeatCount="indefinite"/></line><line x1="40" y1="46" x2="47" y2="60"/><line x1="47" y1="60" x2="52" y2="74"/></g>`,
   neck:`<g stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round" fill="none"><circle cx="40" cy="12" r="7"><animateTransform attributeName="transform" type="rotate" values="0 40 19;18 40 19;-18 40 19;0 40 19" dur="2s" repeatCount="indefinite"/></circle><line x1="40" y1="19" x2="40" y2="46"/><line x1="40" y1="30" x2="26" y2="42"/><line x1="40" y1="30" x2="54" y2="42"/><line x1="40" y1="46" x2="30" y2="64"/><line x1="40" y1="46" x2="50" y2="64"/></g>`,
@@ -198,308 +333,165 @@ const SVG = {
   full:`<g stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round" fill="none"><circle cx="40" cy="12" r="7"/><line x1="40" y1="19" x2="40" y2="46"/><line x1="40" y1="30" x2="26" y2="42"><animateTransform attributeName="transform" type="rotate" values="0 40 30;-22 40 30;0 40 30" dur="1s" repeatCount="indefinite"/></line><line x1="40" y1="30" x2="54" y2="42"><animateTransform attributeName="transform" type="rotate" values="0 40 30;22 40 30;0 40 30" dur="1s" repeatCount="indefinite"/></line><line x1="40" y1="46" x2="30" y2="64"/><line x1="40" y1="46" x2="50" y2="64"/></g>`,
 };
 
-// ── MEDIAPIPE POSE ──
-// Connections to draw (subset of 33 landmarks)
-const POSE_CONNECTIONS = [
-  [11,12],[11,13],[13,15],[12,14],[14,16], // arms
-  [11,23],[12,24],[23,24],                  // torso
-  [23,25],[25,27],[24,26],[26,28],          // legs
-  [0,11],[0,12]                             // head-shoulders
-];
+// ── DETECTION (from old Replit code) ──
+function angle3(a,b,c){const ab={x:a.x-b.x,y:a.y-b.y},cb={x:c.x-b.x,y:c.y-b.y};return Math.atan2(Math.abs(ab.x*cb.y-ab.y*cb.x),ab.x*cb.x+ab.y*cb.y)*180/Math.PI;}
 
-let pose = null;
-let cvReps = 0;
-let armState = 'down'; // for rep counting: 'up' | 'down'
-let lastLandmarks = null;
+function detect(lm,category){
+  switch(category){
+    case 'arms':{
+      const s=lm[12],e=lm[14],h=lm[24];
+      if(!s||!e||!h||s.visibility<.4||e.visibility<.4)return{good:false,repDone:false,accuracy:0,fb:lang==='en'?'🔍 Show your upper body':'🔍 Покажи верхнюю часть тела'};
+      const ang=angle3(h,s,e);
+      return{good:ang>60,repDone:ang>82,accuracy:Math.min(1,ang/90),fb:ang>82?(lang==='en'?'💪 Great arm raise!':'💪 Отличный подъём!'):(lang==='en'?'Raise your arm higher':'Подними руку выше')};
+    }
+    case 'neck':{
+      const n=lm[0],l=lm[11],r=lm[12];
+      if(!n||!l||!r)return{good:false,repDone:false,accuracy:0,fb:''};
+      const ratio=Math.abs(n.x-(l.x+r.x)/2)/Math.max(.01,Math.abs(l.x-r.x));
+      return{good:ratio>.22,repDone:ratio>.22,accuracy:Math.min(1,ratio/.22),fb:ratio>.22?(lang==='en'?'👍 Good neck tilt!':'👍 Хороший наклон!'):(lang==='en'?'Tilt head more to side':'Наклони голову в сторону')};
+    }
+    case 'back':{
+      const l=lm[11],r=lm[12],lh=lm[23],rh=lm[24];
+      if(!l||!r||!lh||!rh||[l,r,lh,rh].some(p=>p.visibility<.35))return{good:false,repDone:false,accuracy:0,fb:''};
+      const rot=Math.abs((l.x+r.x)/2-(lh.x+rh.x)/2);
+      return{good:rot>.06,repDone:rot>.06,accuracy:Math.min(1,rot/.1),fb:rot>.06?(lang==='en'?'🔄 Good rotation!':'🔄 Хорошее скручивание!'):(lang==='en'?'Rotate upper body more':'Скрути корпус сильнее')};
+    }
+    case 'legs':{
+      const h=lm[24],k=lm[26];
+      if(!h||!k||h.visibility<.35||k.visibility<.35)return{good:false,repDone:false,accuracy:0,fb:''};
+      const r=h.y-k.y;
+      return{good:r>.05,repDone:r>.05,accuracy:Math.min(1,Math.max(0,r/.08)),fb:r>.05?(lang==='en'?'🦵 Knee raised!':'🦵 Колено поднято!'):(lang==='en'?'Lift your knee higher':'Подними колено выше')};
+    }
+    default:{
+      const n=lm[0],l=lm[11],r=lm[12];
+      if(!n||!l||!r)return{good:false,repDone:false,accuracy:0,fb:''};
+      const d=((l.y-n.y)+(r.y-n.y))/2;
+      return{good:d<.22,repDone:d<.22,accuracy:Math.min(1,Math.max(0,1-(d-.15)/.15)),fb:d<.22?(lang==='en'?'🤷 Shoulders up!':'🤷 Плечи подняты!'):(lang==='en'?'Raise shoulders to ears':'Подними плечи к ушам')};
+    }
+  }
+}
 
-function initMediaPipe() {
-  try {
-    pose = new Pose({
-      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
-    });
+// ── MEDIAPIPE ──
+const POSE_CONNECTIONS=[[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],[23,25],[25,27],[24,26],[26,28],[0,11],[0,12]];
+let firstResult=false;
 
-    pose.setOptions({
-      modelComplexity: 0,      // 0=lite (fast on mobile), 1=full, 2=heavy
-      smoothLandmarks: true,
-      enableSegmentation: false,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5
-    });
+function onPoseResults(results){
+  if(!firstResult){
+    firstResult=true;
+    document.getElementById('ai-loading').style.display='none';
+  }
+  const canvas=document.getElementById('pose-canvas');
+  const ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;
+  canvas.height=window.innerHeight;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
 
+  if(!results.poseLandmarks){
+    showBubble(lang==='en'?'🔍 Step back — show upper body':'🔍 Отойди — покажи верхнюю часть тела','');
+    return;
+  }
+
+  drawConnectors(ctx,results.poseLandmarks,POSE_CONNECTIONS,{color:'rgba(78,205,196,0.7)',lineWidth:2.5});
+  drawLandmarks(ctx,results.poseLandmarks,{color:'#4ECDC4',lineWidth:1,radius:4});
+
+  const ex=plan[idx];
+  if(!ex)return;
+  const {good,repDone,accuracy,fb}=detect(results.poseLandmarks,ex.category);
+
+  accuracySum+=accuracy; accuracyCount++;
+  const avg=Math.round((accuracySum/accuracyCount)*100);
+  document.getElementById('acc-fill').style.width=avg+'%';
+  document.getElementById('acc-pct').textContent=avg+'%';
+
+  if(repDone&&repState==='down') repState='up';
+  if(!repDone&&repState==='up'){
+    repState='down';
+    const now=Date.now();
+    if(now-lastRepTime>800){
+      lastRepTime=now;
+      repCount++; totalReps++;
+      speakCount(repCount);
+      document.getElementById('rep-live').textContent=repCount;
+      showBubble(`✅ ${lang==='en'?'Rep':'Повторение'} ${repCount}!`,'good');
+      return;
+    }
+  }
+  if(fb) showBubble(fb, good?'good':'');
+}
+
+let bubbleTimer=null;
+function showBubble(msg,type){
+  const el=document.getElementById('cv-bubble');
+  el.textContent=msg;
+  el.className='cv-bubble show'+(type?' '+type:'');
+  clearTimeout(bubbleTimer);
+  bubbleTimer=setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+function initMediaPipe(){
+  try{
+    const pose=new Pose({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/pose/${f}`});
+    pose.setOptions({modelComplexity:0,smoothLandmarks:true,enableSegmentation:false,minDetectionConfidence:.5,minTrackingConfidence:.5});
     pose.onResults(onPoseResults);
-
-    const videoEl = document.getElementById('camera-feed');
-
-    const camera = new Camera(videoEl, {
-      onFrame: async () => {
-        if (pose) await pose.send({ image: videoEl });
-      },
-      width: 200,
-      height: 280
-    });
-
-    camera.start().then(() => {
-      document.getElementById('cam-loading').style.display = 'none';
-      document.getElementById('cam-dot').classList.add('on');
-      document.getElementById('cam-lbl').textContent = lang === 'en' ? 'Live' : 'Вкл';
-      setCvBar(lang === 'en' ? 'Pose detection active' : 'Отслеживание позы активно', '');
-    }).catch(handleCameraError);
-
-  } catch(e) {
-    console.warn('MediaPipe failed, falling back:', e);
-    fallbackCamera();
-  }
+    const v=document.getElementById('camera-feed');
+    mpCamera=new Camera(v,{onFrame:async()=>{await pose.send({image:v});},width:640,height:480});
+    mpCamera.start().catch(handleCameraError);
+  }catch(e){fallbackCamera();}
 }
 
-function onPoseResults(results) {
-  const canvas = document.getElementById('pose-canvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width  = document.getElementById('camera-feed').offsetWidth  || 100;
-  canvas.height = document.getElementById('camera-feed').offsetHeight || 134;
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  if (!results.poseLandmarks) return;
-
-  lastLandmarks = results.poseLandmarks;
-  const lm = results.poseLandmarks;
-  const w = canvas.width, h = canvas.height;
-
-  // Draw connections
-  ctx.strokeStyle = 'rgba(78,205,196,0.8)';
-  ctx.lineWidth = 1.8;
-  POSE_CONNECTIONS.forEach(([a, b]) => {
-    const pa = lm[a], pb = lm[b];
-    if (!pa || !pb || pa.visibility < 0.3 || pb.visibility < 0.3) return;
-    ctx.beginPath();
-    ctx.moveTo(pa.x * w, pa.y * h);
-    ctx.lineTo(pb.x * w, pb.y * h);
-    ctx.stroke();
-  });
-
-  // Draw keypoints
-  lm.forEach((p, i) => {
-    if (p.visibility < 0.3) return;
-    ctx.beginPath();
-    ctx.arc(p.x * w, p.y * h, i === 0 ? 4 : 3, 0, Math.PI * 2);
-    ctx.fillStyle = i === 0 ? '#FF6B6B' : '#4ECDC4';
-    ctx.fill();
-  });
-
-  // Mark camera as tracking
-  document.getElementById('cam-dot').classList.remove('on');
-  document.getElementById('cam-dot').classList.add('tracking');
-  document.getElementById('cam-lbl').textContent = lang === 'en' ? 'Tracking' : 'Трекинг';
-
-  // Analyze movement based on current exercise category
-  analyzeMovement(lm, cat);
-}
-
-// ── MOVEMENT ANALYSIS ──
-function getAngle(a, b, c) {
-  // Angle at point b between points a and c
-  const ab = { x: a.x - b.x, y: a.y - b.y };
-  const cb = { x: c.x - b.x, y: c.y - b.y };
-  const dot = ab.x * cb.x + ab.y * cb.y;
-  const mag = Math.sqrt(ab.x**2 + ab.y**2) * Math.sqrt(cb.x**2 + cb.y**2);
-  if (mag === 0) return 0;
-  return Math.acos(Math.min(1, Math.max(-1, dot / mag))) * (180 / Math.PI);
-}
-
-function analyzeMovement(lm, category) {
-  if (!lm) return;
-  const cvBar = document.getElementById('cv-bar');
-
-  if (category === 'arms') {
-    // Track right elbow angle (shoulder-elbow-wrist)
-    const rShoulder = lm[12], rElbow = lm[14], rWrist = lm[16];
-    if (rShoulder?.visibility > 0.5 && rElbow?.visibility > 0.5 && rWrist?.visibility > 0.5) {
-      const angle = getAngle(rShoulder, rElbow, rWrist);
-
-      // Rep counting: arm raises/curls
-      // Down = angle > 150°, Up = angle < 90°
-      if (angle < 80 && armState === 'down') {
-        armState = 'up';
-      } else if (angle > 140 && armState === 'up') {
-        armState = 'down';
-        cvReps++;
-        totalCvReps++;
-        document.getElementById('rep-live').textContent = cvReps;
-        setCvBar(`✅ Повторение ${cvReps}!`, 'good');
-      }
-
-      // Posture feedback
-      if (angle > 40 && angle < 80) {
-        setCvBar(lang==='en'?'Good range! Keep going 💪':'Хорошая амплитуда! Продолжай 💪', 'good');
-      }
-    }
-
-  } else if (category === 'neck') {
-    // Track head position relative to shoulders
-    const nose = lm[0], lShoulder = lm[11], rShoulder = lm[12];
-    if (nose?.visibility > 0.5 && lShoulder?.visibility > 0.4 && rShoulder?.visibility > 0.4) {
-      const shoulderMidX = (lShoulder.x + rShoulder.x) / 2;
-      const tilt = Math.abs(nose.x - shoulderMidX);
-
-      if (tilt > 0.08) {
-        setCvBar(lang==='en'?'Head tilted — great! 👍':'Голова наклонена — отлично! 👍', 'good');
-        cvReps++;
-        totalCvReps++;
-        document.getElementById('rep-live').textContent = cvReps;
-      } else {
-        setCvBar(lang==='en'?'Tilt your head more to the side':'Наклони голову больше в сторону', '');
-      }
-    }
-
-  } else if (category === 'back') {
-    // Track spine curvature via shoulder-hip alignment
-    const lShoulder = lm[11], rShoulder = lm[12], lHip = lm[23], rHip = lm[24];
-    if ([lShoulder, rShoulder, lHip, rHip].every(p => p?.visibility > 0.4)) {
-      const shoulderMidX = (lShoulder.x + rShoulder.x) / 2;
-      const hipMidX     = (lHip.x + rHip.x) / 2;
-      const rotation = Math.abs(shoulderMidX - hipMidX);
-
-      if (rotation > 0.05) {
-        cvReps++;
-        totalCvReps++;
-        document.getElementById('rep-live').textContent = cvReps;
-        setCvBar(lang==='en'?'Good rotation! 🔄':'Хорошее скручивание! 🔄', 'good');
-      } else {
-        setCvBar(lang==='en'?'Rotate your upper body more':'Скрути корпус сильнее', '');
-      }
-    }
-
-  } else if (category === 'legs') {
-    // Track knee lift — right hip vs right knee y position
-    const rHip = lm[24], rKnee = lm[26];
-    if (rHip?.visibility > 0.4 && rKnee?.visibility > 0.4) {
-      const kneeRaised = rHip.y - rKnee.y; // positive = knee above hip
-
-      if (kneeRaised > 0.04 && armState === 'down') {
-        armState = 'up';
-        setCvBar(lang==='en'?'Knee raised! 🦵':'Колено поднято! 🦵', 'good');
-      } else if (kneeRaised < 0.01 && armState === 'up') {
-        armState = 'down';
-        cvReps++;
-        totalCvReps++;
-        document.getElementById('rep-live').textContent = cvReps;
-        setCvBar(`✅ Повторение ${cvReps}`, 'good');
-      }
-    }
-
-  } else if (category === 'core') {
-    // Track forward lean — nose y vs shoulder y
-    const nose = lm[0], lShoulder = lm[11];
-    if (nose?.visibility > 0.5 && lShoulder?.visibility > 0.4) {
-      const lean = nose.y - lShoulder.y;
-      if (lean < 0.05) {
-        setCvBar(lang==='en'?'Lean forward more':'Наклонись вперёд больше', 'warn');
-      } else {
-        setCvBar(lang==='en'?'Good core activation! ⚡':'Хорошая активация кора! ⚡', 'good');
-      }
-    }
-
-  } else {
-    // Full body / generic
-    const detected = lm.filter(p => p.visibility > 0.5).length;
-    if (detected > 15) {
-      setCvBar(lang==='en'?`${detected} points tracked ✓`:`${detected} точек отслеживается ✓`, 'good');
-    } else {
-      setCvBar(lang==='en'?'Move into frame':'Встань в кадр', '');
-    }
-  }
-}
-
-let cvBarTimer = null;
-function setCvBar(msg, type) {
-  const el = document.getElementById('cv-bar');
-  el.textContent = msg;
-  el.className = 'cv-bar' + (type ? ' ' + type : '');
-  clearTimeout(cvBarTimer);
-}
-
-// ── FALLBACK (no MediaPipe) ──
-function fallbackCamera() {
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
-    .then(stream => {
-      const v = document.getElementById('camera-feed');
-      v.srcObject = stream;
-      document.getElementById('cam-loading').style.display = 'none';
-      document.getElementById('cam-dot').classList.add('on');
-      document.getElementById('cam-lbl').textContent = lang === 'en' ? 'Live' : 'Вкл';
-      setCvBar(lang==='en'?'Camera on (no pose detection)':'Камера вкл (без CV)', '');
-    })
+function fallbackCamera(){
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}})
+    .then(s=>{document.getElementById('camera-feed').srcObject=s;document.getElementById('ai-loading').style.display='none';showBubble(lang==='en'?'Camera on (no AI)':'Камера вкл (без AI)','');})
     .catch(handleCameraError);
 }
 
-function handleCameraError() {
-  document.getElementById('cam-loading').style.display = 'none';
-  document.getElementById('camera-feed').style.display = 'none';
-  document.getElementById('pose-canvas').style.display = 'none';
-  document.getElementById('cam-no').style.display = 'flex';
-  document.getElementById('cam-lbl').textContent = '—';
-  setCvBar(lang==='en'?'Camera not available':'Камера недоступна', 'warn');
+function handleCameraError(){
+  document.getElementById('ai-loading').style.display='none';
+  document.getElementById('camera-feed').style.display='none';
+  document.getElementById('cam-no').style.display='flex';
 }
 
-// ── LOAD EXERCISE ──
-function loadEx() {
-  if (idx >= plan.length) { finish(); return; }
-  const ex = plan[idx];
-  cvReps = 0;
-  armState = 'down';
-  document.getElementById('rep-live').textContent = '0';
-  document.getElementById('rep-live-lbl').textContent = lang === 'en' ? 'CV count' : 'CV счёт';
-
-  document.getElementById('ex-name').textContent = ex.displayName;
-  document.getElementById('ex-desc').textContent = ex.displayDesc;
-  document.getElementById('m-val').textContent   = ex.durationSec || ex.reps || 10;
-  document.getElementById('m-lbl').textContent   = ex.durationSec ? (lang==='en'?'sec':'сек') : (lang==='en'?'reps':'повт.');
-  document.getElementById('m-sets').textContent  = ex.sets || 3;
-  document.getElementById('m-sets-lbl').textContent = lang==='en'?'sets':'подх.';
-  document.getElementById('steps').innerHTML     = (ex.steps||[]).map((s,i)=>`<div class="step"><span class="step-n">${i+1}</span><span class="step-t">${s}</span></div>`).join('');
-  document.getElementById('prog-fill').style.width  = `${(idx/plan.length)*100}%`;
-  document.getElementById('prog-lbl').textContent   = `${idx+1} / ${plan.length}`;
-  document.getElementById('hint-svg').innerHTML      = SVG[ex.category] || SVG.arms;
-  document.getElementById('hint-lbl').textContent   = lang==='en'?'How to':'Как делать';
-  document.getElementById('btn-next').textContent   = idx === plan.length-1
-    ? (lang==='en'?'Complete ✓':'Завершить ✓')
-    : (lang==='en'?'Next →':'Следующее →');
+// ── EXERCISE ──
+function loadEx(){
+  if(idx>=plan.length){finish();return;}
+  const ex=plan[idx];
+  repCount=0;repState='down';
+  document.getElementById('rep-live').textContent='0';
+  document.getElementById('ex-name').textContent=ex.displayName;
+  document.getElementById('ex-desc').textContent=ex.displayDesc;
+  document.getElementById('m-val').textContent=ex.durationSec||ex.reps||10;
+  document.getElementById('m-lbl').textContent=ex.durationSec?(lang==='en'?'sec':'сек'):(lang==='en'?'reps':'повт.');
+  document.getElementById('m-sets').textContent=ex.sets||3;
+  document.getElementById('steps').innerHTML=(ex.steps||[]).map((s,i)=>`<div class="step"><span class="step-n">${i+1}</span><span class="step-t">${s}</span></div>`).join('');
+  document.getElementById('prog-fill').style.width=`${(idx/plan.length)*100}%`;
+  document.getElementById('prog-lbl').textContent=`${idx+1} / ${plan.length}`;
+  document.getElementById('hint-svg').innerHTML=SVG[ex.category]||SVG.arms;
+  document.getElementById('hint-lbl').textContent=lang==='en'?'How to':'Как делать';
+  document.getElementById('btn-next').textContent=idx===plan.length-1?(lang==='en'?'Complete ✓':'Завершить ✓'):(lang==='en'?'Next →':'Следующее →');
 }
 
-function nextEx() { idx++; if (idx >= plan.length) finish(); else loadEx(); }
-function skipEx() { nextEx(); }
+function nextEx(){idx++;if(idx>=plan.length)finish();else loadEx();}
+function skipEx(){nextEx();}
 
-function finish() {
-  const dMin = Math.max(1, Math.round((Date.now()-t0)/60000));
-  saveSession({ category:cat, title:plan[0]?.displayName||cat, durationMin:dMin, exercises:plan.map(e=>e.id) });
-  const { new:na } = checkAchievements();
-
-  // Stop camera
-  const v = document.getElementById('camera-feed');
-  if (v.srcObject) v.srcObject.getTracks().forEach(t=>t.stop());
-  if (pose) { pose.close(); pose = null; }
-
-  // Hide UI
-  ['top-bar','top-row','cv-bar','ex-info'].forEach(id => {
-    const el = document.getElementById(id); if(el) el.style.display='none';
-  });
-  document.querySelector('.btns').style.display='none';
-
-  const d = document.getElementById('done');
-  d.style.display = 'flex';
-  document.getElementById('d-cnt').textContent  = plan.length;
-  document.getElementById('d-min').textContent  = dMin;
-  document.getElementById('d-reps').textContent = totalCvReps;
-
-  if (na.length) {
-    const names = { first_step:'👣 Первый шаг!', week_warrior:'🏆 Воин недели!', mover:'🚀 В движении!', dedicated:'💎 Преданность!' };
-    const el = document.getElementById('done-ach');
-    el.textContent = names[na[0]] || '🏅 Новое достижение!';
-    el.style.display = 'block';
-  }
+function finish(){
+  const dMin=Math.max(1,Math.round((Date.now()-t0)/60000));
+  const avg=accuracyCount>0?Math.round((accuracySum/accuracyCount)*100):0;
+  playVictory();
+  saveSession({category:cat,title:plan[0]?.displayName||cat,durationMin:dMin,exercises:plan.map(e=>e.id)});
+  const{new:na}=checkAchievements();
+  if(mpCamera){mpCamera.stop();mpCamera=null;}
+  const v=document.getElementById('camera-feed');
+  if(v.srcObject)v.srcObject.getTracks().forEach(t=>t.stop());
+  const d=document.getElementById('done');
+  d.style.display='flex';
+  document.getElementById('d-cnt').textContent=plan.length;
+  document.getElementById('d-min').textContent=dMin;
+  document.getElementById('d-reps').textContent=totalReps;
+  document.getElementById('d-acc').textContent=avg+'%';
+  document.getElementById('done-title').textContent=avg>=80?'🏆 '+(lang==='en'?'Champion!':'Чемпион!'):avg>=60?'⭐ '+(lang==='en'?'Amazing!':'Потрясающе!'):'💪 '+(lang==='en'?'Well done!':'Молодец!');
+  if(na.length){const names={first_step:'👣 Первый шаг!',week_warrior:'🏆 Воин недели!',mover:'🚀 В движении!',dedicated:'💎 Преданность!'};const el=document.getElementById('done-ach');el.textContent=names[na[0]]||'🏅 Новое достижение!';el.style.display='block';}
 }
 
-// ── START ──
 initMediaPipe();
 loadEx();
 </script>
