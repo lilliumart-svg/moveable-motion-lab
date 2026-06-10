@@ -1,22 +1,13 @@
 // =============================================
-// MoveAble Motion Lab — Exercise Database v2
-// Sources: Michigan Medicine PM&R (Upper Extremity ROM),
-// Teladoc Health, HUR USA, FLUX, PureGym adaptive fitness
+// MoveAble Motion Lab — Exercise Database v3
+// Только крупные движения, надёжно отслеживаемые AI.
+// Дыхание — разминка с таймером (без AI-счёта).
+// Sources: Michigan Medicine PM&R, Teladoc, HUR, FLUX
 // =============================================
 
 const EXERCISES = [
 
-  // ══════════ ARMS / WRISTS / SHOULDERS ══════════
-  {
-    id: 'wrist_curl', category: 'arms', difficulty: 'easy', icon: '✋', hint: 'wrist',
-    ru: { name: 'Сгибание-разгибание запястья', desc: 'Восстанавливает подвижность запястья. Предплечье неподвижно.' },
-    en: { name: 'Wrist Flexion & Extension', desc: 'Restores wrist mobility. Forearm stays still.' },
-    sets: 2, reps: 10, restSec: 20,
-    instructions: {
-      ru: ['Положи предплечье на подлокотник или колено, кисть свисает свободно', 'Подними пальцы вверх к потолку, сгибая только запястье', 'Предплечье и локоть не двигаются', 'Опусти пальцы вниз к полу. Это одно повторение'],
-      en: ['Rest your forearm on the armrest or knee, hand hanging free', 'Lift your fingers up toward the ceiling, bending only at the wrist', 'Keep forearm and elbow still', 'Lower fingers toward the floor. That is one rep'],
-    }
-  },
+  // ══════════ ARMS / SHOULDERS ══════════
   {
     id: 'shoulder_flexion', category: 'arms', difficulty: 'easy', icon: '🙋', hint: 'arm_raise',
     ru: { name: 'Подъём руки вперёд-вверх', desc: 'Классическое ROM-упражнение из реабилитационных программ.' },
@@ -90,16 +81,6 @@ const EXERCISES = [
     }
   },
   {
-    id: 'ankle_circles', category: 'legs', difficulty: 'easy', icon: '🦶', hint: 'ankle',
-    ru: { name: 'Круги стопой', desc: 'Улучшает кровообращение, предотвращает отёки ног.' },
-    en: { name: 'Ankle Circles', desc: 'Improves circulation, prevents leg swelling.' },
-    sets: 2, reps: 10, restSec: 20,
-    instructions: {
-      ru: ['Слегка приподними правую стопу от пола', 'Вращай стопой по часовой стрелке 10 раз', 'Потом против часовой 10 раз', 'Поменяй ногу и повтори'],
-      en: ['Lift your right foot slightly off the floor', 'Rotate your ankle clockwise 10 times', 'Then counter-clockwise 10 times', 'Switch feet and repeat'],
-    }
-  },
-  {
     id: 'leg_side', category: 'legs', difficulty: 'medium', icon: '↔️', hint: 'leg_side',
     ru: { name: 'Отведение ноги в сторону', desc: 'Укрепляет внешнюю часть бедра, улучшает стабильность таза.' },
     en: { name: 'Leg Out to Side', desc: 'Strengthens outer thigh, improves hip stability.' },
@@ -107,16 +88,6 @@ const EXERCISES = [
     instructions: {
       ru: ['Сядь прямо, стопы на полу', 'Отведи правую ногу в сторону насколько можешь', 'Верни обратно в центр', 'Сделай 10 раз, потом смени ногу'],
       en: ['Sit tall, feet on the floor', 'Move your right leg out to the side as far as you can', 'Bring it back to center', 'Do 10 reps, then switch legs'],
-    }
-  },
-  {
-    id: 'toe_taps', category: 'legs', difficulty: 'easy', icon: '🎵', hint: 'toes',
-    ru: { name: 'Постукивание носками', desc: 'Разгоняет кровь в голенях. Можно под музыку!' },
-    en: { name: 'Toe Taps', desc: 'Gets blood flowing in your calves. Try it to music!' },
-    sets: 1, reps: 30, restSec: 20,
-    instructions: {
-      ru: ['Пятки на полу', 'Подними носки обеих стоп вверх', 'Опусти и постучи в ритме', 'Включи любимую музыку — так веселее'],
-      en: ['Keep your heels on the floor', 'Lift the toes of both feet up', 'Lower and tap in rhythm', 'Put on your favorite music — it is more fun'],
     }
   },
 
@@ -186,16 +157,6 @@ const EXERCISES = [
 
   // ══════════ CORE ══════════
   {
-    id: 'breathing', category: 'core', difficulty: 'easy', icon: '🫁', hint: 'breathe',
-    ru: { name: 'Диафрагмальное дыхание', desc: 'Основа основ. Активирует глубокие мышцы кора.' },
-    en: { name: 'Diaphragmatic Breathing', desc: 'The foundation. Activates deep core muscles.' },
-    sets: 1, reps: 8, restSec: 10,
-    instructions: {
-      ru: ['Положи одну руку на живот', 'Вдохни через нос на 4 счёта — живот поднимается, грудь почти неподвижна', 'Выдохни через рот на 6 счётов, втягивая живот', 'Почувствуй как напрягается пресс на выдохе'],
-      en: ['Place one hand on your belly', 'Inhale through your nose for 4 counts — belly rises, chest stays still', 'Exhale through your mouth for 6 counts, pulling belly in', 'Feel your abs engage on the exhale'],
-    }
-  },
-  {
     id: 'side_bend', category: 'core', difficulty: 'medium', icon: '↪️', hint: 'side',
     ru: { name: 'Наклоны в сторону', desc: 'Укрепляет косые мышцы, улучшает баланс сидя.' },
     en: { name: 'Seated Side Bends', desc: 'Strengthens obliques, improves seated balance.' },
@@ -216,11 +177,11 @@ const EXERCISES = [
     }
   },
 
-  // ══════════ FULL BODY WARM-UP ══════════
+  // ══════════ WARM-UP (дыхание — таймер, без AI) ══════════
   {
-    id: 'warmup_breath', category: 'full', difficulty: 'easy', icon: '🌅', hint: 'breathe',
-    ru: { name: 'Дыхательная разминка', desc: 'Всегда начинай тренировку с этого. 1 минута.' },
-    en: { name: 'Breathing Warm-up', desc: 'Always start your session with this. 1 minute.' },
+    id: 'warmup_breath', category: 'full', difficulty: 'easy', icon: '🌅', hint: 'breathe', noAI: true, timerSec: 40,
+    ru: { name: 'Дыхательная разминка', desc: 'Всегда начинай тренировку с этого. Камера не считает — просто дыши с таймером.' },
+    en: { name: 'Breathing Warm-up', desc: 'Always start your session with this. No camera counting — just breathe with the timer.' },
     sets: 1, reps: 5, restSec: 10,
     instructions: {
       ru: ['Сядь удобно, закрой глаза если хочешь', 'Глубокий вдох через нос — 4 счёта', 'Задержка — 2 счёта', 'Медленный выдох через рот — 6 счётов'],
@@ -229,8 +190,8 @@ const EXERCISES = [
   },
   {
     id: 'warmup_upper', category: 'full', difficulty: 'easy', icon: '✨', hint: 'circles',
-    ru: { name: 'Разминка верха тела', desc: 'Быстрый разогрев шеи, плеч и рук за 2 минуты.' },
-    en: { name: 'Upper Body Warm-up', desc: 'Quick 2-minute warm-up for neck, shoulders and arms.' },
+    ru: { name: 'Разминка верха тела', desc: 'Быстрый разогрев шеи, плеч и рук.' },
+    en: { name: 'Upper Body Warm-up', desc: 'Quick warm-up for neck, shoulders and arms.' },
     sets: 1, reps: 10, restSec: 20,
     instructions: {
       ru: ['Медленные повороты головы — по 5 в каждую сторону', 'Круги плечами назад — 10 раз', 'Вытяни руки вперёд и потянись — 5 раз', 'Встряхни кисти рук — 10 секунд'],
